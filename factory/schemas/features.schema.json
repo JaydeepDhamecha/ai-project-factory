@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-software-factory/schemas/features.schema.json",
+  "title": "Feature Plan",
+  "description": "Dependency-ordered vertical feature slices at .project/state/features.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "features"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "orderingRationale": { "type": "string" },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "order", "status", "steps"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^f[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$" },
+          "name": { "type": "string" },
+          "summary": { "type": "string" },
+          "order": { "type": "integer", "minimum": 1 },
+          "priority": { "type": "string", "enum": ["MUST", "SHOULD", "COULD", "WONT"] },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
+          "requirements": { "type": "array", "items": { "type": "string" }, "description": "REQ ids" },
+          "acceptanceCriteria": { "type": "array", "items": { "type": "string" }, "description": "AC ids" },
+          "status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "READY_FOR_REVIEW", "COMPLETED", "FAILED", "DEFERRED"]
+          },
+          "offlineClass": {
+            "type": "string",
+            "enum": ["ONLINE_ONLY", "OFFLINE_READ", "OFFLINE_WRITE", "OFFLINE_CAPABLE", "SYNC_REQUIRED", "NOT_APPLICABLE"]
+          },
+          "steps": {
+            "type": "array",
+            "description": "The vertical slice. Only the steps that apply to this project appear.",
+            "items": {
+              "type": "object",
+              "required": ["step", "agent", "status"],
+              "properties": {
+                "step": {
+                  "type": "string",
+                  "enum": ["database", "backend", "api", "web", "mobile", "integration", "playwright", "qa", "regression"]
+                },
+                "agent": { "type": "string" },
+                "status": {
+                  "type": "string",
+                  "enum": ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "READY_FOR_REVIEW", "COMPLETED", "FAILED", "NOT_APPLICABLE"]
+                },
+                "startedAt": { "type": ["string", "null"], "format": "date-time" },
+                "completedAt": { "type": ["string", "null"], "format": "date-time" },
+                "attempts": { "type": "integer", "default": 0 },
+                "evidence": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "dodResult": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "NOT_EVALUATED"],
+            "default": "NOT_EVALUATED"
+          },
+          "deferralReason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

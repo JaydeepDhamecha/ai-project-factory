@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Unnamed Project",
+  "slug": "unnamed-project",
+  "description": "SEED MANIFEST. Copied to .project/project.json at the start of phase 00-discover, then filled in by `discovery`. Every value below is a neutral default, not a claim about the project: capabilities are all false, the agent roster is empty and no document is generated until discovery decides otherwise. Validate against factory/schemas/project.schema.json after each edit.",
+  "projectType": "other",
+  "platforms": ["web"],
+  "capabilities": {
+    "web": false,
+    "adminPortal": false,
+    "mobile": false,
+    "desktop": false,
+    "backend": false,
+    "api": false,
+    "database": false,
+    "auth": false,
+    "authzRoles": false,
+    "offline": false,
+    "realtime": false,
+    "fileUpload": false,
+    "notifications": false,
+    "backgroundJobs": false,
+    "reporting": false,
+    "payments": false,
+    "i18n": false,
+    "multiTenant": false,
+    "responsive": false,
+    "browserTesting": false,
+    "integration": false,
+    "deployable": true,
+    "existingCodebase": false
+  },
+  "stack": {},
+  "commands": {},
+  "paths": {},
+  "selectedAgents": [],
+  "rejectedAgents": [],
+  "generatedDocuments": [],
+  "skippedDocuments": [],
+  "inputs": {
+    "descriptionFile": "input/project-description.md",
+    "references": []
+  },
+  "currentPhase": "00-discover",
+  "status": "NOT_STARTED",
+  "releaseReadiness": "NOT_EVALUATED",
+  "mcp": {
+    "playwright": "NOT_PROBED"
+  },
+  "factoryVersion": "1.0.0",
+  "createdAt": "1970-01-01T00:00:00Z",
+  "updatedAt": "1970-01-01T00:00:00Z"
+}

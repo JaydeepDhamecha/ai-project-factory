@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-software-factory/schemas/test-report.schema.json",
+  "title": "Test Report",
+  "description": "Structured result of an executed test run. Used by unit, integration, browser (Playwright MCP), mobile and regression runs. A report may only be written after actual execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "layer", "executed", "status", "scenarios", "startedAt", "finishedAt", "agent"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "layer": {
+      "type": "string",
+      "enum": ["static", "unit", "integration", "contract", "browser", "mobile", "regression", "security", "performance"]
+    },
+    "runner": { "type": "string", "description": "e.g. 'playwright-mcp', 'vitest', 'pytest'" },
+    "executed": {
+      "type": "boolean",
+      "description": "False means nothing ran. When false, status must be NOT_TESTED or BLOCKED and reason is required."
+    },
+    "reason": { "type": "string", "description": "Required when executed is false" },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "PARTIAL", "FAIL", "NOT_TESTED", "BLOCKED", "NOT_APPLICABLE"]
+    },
+    "feature": { "type": "string" },
+    "agent": { "type": "string" },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "appUrl": { "type": "string" },
+        "browser": { "type": "string" },
+        "viewport": { "type": "string" },
+        "platform": { "type": "string" },
+        "commit": { "type": "string" }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "blocked": { "type": "integer" },
+        "skipped": { "type": "integer" }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "status", "executed"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "acceptanceCriteria": { "type": "array", "items": { "type": "string" } },
+          "steps": {
+            "type": "array",
+            "description": "Real actions taken, in order. For Playwright MCP these are the tool calls made.",
+            "items": {
+              "type": "object",
+              "required": ["action"],
+              "properties": {
+                "action": { "type": "string" },
+                "target": { "type": "string" },
+                "value": { "type": "string" },
+                "observed": { "type": "string" }
+              }
+            }
+          },
+          "executed": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "NOT_TESTED", "NOT_APPLICABLE"] },
+          "expected": { "type": "string" },
+          "actual": { "type": "string" },
+          "screenshots": { "type": "array", "items": { "type": "string" } },
+          "consoleErrors": { "type": "array", "items": { "type": "string" } },
+          "networkFailures": { "type": "array", "items": { "type": "string" } },
+          "defectId": { "type": "string" },
+          "durationMs": { "type": "integer" }
+        }
+      }
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "summary"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^BUG-[0-9]{3}$" },
+          "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] },
+          "summary": { "type": "string" },
+          "scenario": { "type": "string" },
+          "reproduction": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "rawOutputPath": { "type": "string" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "finishedAt": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "executed": { "const": false } } },
+      "then": {
+        "required": ["reason"],
+        "properties": {
+          "status": { "enum": ["NOT_TESTED", "BLOCKED", "NOT_APPLICABLE"] }
+        }
+      }
+    }
+  ]
+}

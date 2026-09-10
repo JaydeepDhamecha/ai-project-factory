@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "orderingRationale": "SEED. Replaced by project-planner in phase 02-plan. State why this order and not another: dependencies first, then risk, then what unblocks the most downstream work.",
+  "features": [
+    {
+      "id": "f01-example-slice",
+      "name": "Example slice",
+      "summary": "Illustrative entry showing the required shape. project-planner replaces the whole features array; this entry is never built.",
+      "order": 1,
+      "priority": "MUST",
+      "dependsOn": [],
+      "requirements": [],
+      "acceptanceCriteria": [],
+      "status": "NOT_STARTED",
+      "offlineClass": "NOT_APPLICABLE",
+      "steps": [
+        { "step": "backend", "agent": "project-backend", "status": "NOT_STARTED", "attempts": 0, "evidence": [] },
+        { "step": "api", "agent": "project-api", "status": "NOT_STARTED", "attempts": 0, "evidence": [] },
+        { "step": "web", "agent": "project-web", "status": "NOT_STARTED", "attempts": 0, "evidence": [] },
+        { "step": "playwright", "agent": "project-playwright", "status": "NOT_STARTED", "attempts": 0, "evidence": [] },
+        { "step": "qa", "agent": "project-qa", "status": "NOT_STARTED", "attempts": 0, "evidence": [] },
+        { "step": "regression", "agent": "project-regression", "status": "NOT_STARTED", "attempts": 0, "evidence": [] }
+      ],
+      "dodResult": "NOT_EVALUATED"
+    }
+  ]
+}

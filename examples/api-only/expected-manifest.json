@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Link Shortener API",
+  "slug": "link-shortener-api",
+  "description": "Expected manifest for a headless project. No designer, no web, no playwright \u2014 and GATE-PW is NOT_APPLICABLE rather than omitted. Contract tests carry the verification burden.",
+  "projectType": "api-only",
+  "platforms": [
+    "backend"
+  ],
+  "capabilities": {
+    "web": false,
+    "adminPortal": false,
+    "mobile": false,
+    "desktop": false,
+    "backend": true,
+    "api": true,
+    "database": true,
+    "auth": true,
+    "authzRoles": false,
+    "offline": false,
+    "realtime": false,
+    "fileUpload": false,
+    "notifications": false,
+    "backgroundJobs": false,
+    "reporting": false,
+    "payments": false,
+    "i18n": false,
+    "multiTenant": false,
+    "responsive": false,
+    "browserTesting": false,
+    "integration": false,
+    "existingCodebase": false,
+    "deployable": true
+  },
+  "stack": {
+    "backend": {
+      "technology": "Python + FastAPI",
+      "rationale": "strong typing and generated OpenAPI",
+      "source": "FACTORY_DEFAULT",
+      "language": "Python"
+    },
+    "database": {
+      "technology": "PostgreSQL",
+      "rationale": "relational data with unique-constraint needs",
+      "source": "FACTORY_DEFAULT"
+    },
+    "testing": {
+      "technology": "pytest + schemathesis",
+      "rationale": "unit plus contract conformance",
+      "source": "FACTORY_DEFAULT"
+    },
+    "infrastructure": {
+      "technology": "Container host",
+      "rationale": "",
+      "source": "FACTORY_DEFAULT"
+    }
+  },
+  "commands": {
+    "install": "pip install -r requirements.txt",
+    "dev": "uvicorn app.main:app --reload",
+    "build": "docker build .",
+    "test": "pytest",
+    "lint": "ruff check .",
+    "typecheck": "mypy app",
+    "migrate": "alembic upgrade head"
+  },
+  "paths": {
+    "backend": "app/",
+    "database": "migrations/"
+  },
+  "selectedAgents": [
+    {
+      "id": "project-product",
+      "template": "product",
+      "file": ".claude/agents/project-product.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-requirements",
+      "template": "requirements",
+      "file": ".claude/agents/project-requirements.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-planner",
+      "template": "planner",
+      "file": ".claude/agents/project-planner.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-architect",
+      "template": "architect",
+      "file": ".claude/agents/project-architect.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-technology",
+      "template": "technology",
+      "file": ".claude/agents/project-technology.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-database",
+      "template": "database",
+      "file": ".claude/agents/project-database.md",
+      "reason": "database"
+    },
+    {
+      "id": "project-api",
+      "template": "api",
+      "file": ".claude/agents/project-api.md",
+      "reason": "api"
+    },
+    {
+      "id": "project-backend",
+      "template": "backend",
+      "file": ".claude/agents/project-backend.md",
+      "reason": "backend"
+    },
+    {
+      "id": "project-qa",
+      "template": "qa",
+      "file": ".claude/agents/project-qa.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-bug-fixer",
+      "template": "bug-fixer",
+      "file": ".claude/agents/project-bug-fixer.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-regression",
+      "template": "regression",
+      "file": ".claude/agents/project-regression.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-security",
+      "template": "security",
+      "file": ".claude/agents/project-security.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-performance",
+      "template": "performance",
+      "file": ".claude/agents/project-performance.md",
+      "reason": "backend OR web OR mobile OR desktop"
+    },
+    {
+      "id": "project-devops",
+      "template": "devops",
+      "file": ".claude/agents/project-devops.md",
+      "reason": "deployable"
+    },
+    {
+      "id": "project-reviewer",
+      "template": "reviewer",
+      "file": ".claude/agents/project-reviewer.md",
+      "reason": "always"
+    },
+    {
+      "id": "project-release",
+      "template": "release",
+      "file": ".claude/agents/project-release.md",
+      "reason": "always"
+    }
+  ],
+  "rejectedAgents": [
+    {
+      "template": "designer",
+      "reason": "condition false: web OR mobile OR adminPortal OR desktop"
+    },
+    {
+      "template": "web",
+      "reason": "condition false: web OR adminPortal"
+    },
+    {
+      "template": "mobile",
+      "reason": "condition false: mobile"
+    },
+    {
+      "template": "integration",
+      "reason": "condition false: integration (derived)"
+    },
+    {
+      "template": "offline-sync",
+      "reason": "condition false: offline"
+    },
+    {
+      "template": "playwright",
+      "reason": "condition false: browserTesting"
+    }
+  ],
+  "generatedDocuments": [
+    {
+      "path": "docs/project-overview.md",
+      "template": "project-overview.template.md",
+      "owner": "project-product",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/source-analysis.md",
+      "template": "source-analysis.template.md",
+      "owner": "discovery",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/PRD.md",
+      "template": "PRD.template.md",
+      "owner": "project-product",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/requirements.md",
+      "template": "requirements.template.md",
+      "owner": "project-requirements",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/user-stories.md",
+      "template": "user-stories.template.md",
+      "owner": "project-requirements",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/acceptance-criteria.md",
+      "template": "acceptance-criteria.template.md",
+      "owner": "project-requirements",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/assumptions.md",
+      "template": "assumptions.template.md",
+      "owner": "project-product",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/platform-requirements.md",
+      "template": "platform-requirements.template.md",
+      "owner": "project-architect",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/technology-stack.md",
+      "template": "technology-stack.template.md",
+      "owner": "project-technology",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/architecture.md",
+      "template": "architecture.template.md",
+      "owner": "project-architect",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/development-plan.md",
+      "template": "development-plan.template.md",
+      "owner": "project-planner",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/development-status.md",
+      "template": "development-status.template.md",
+      "owner": "project-planner",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/testing-strategy.md",
+      "template": "testing-strategy.template.md",
+      "owner": "project-qa",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/security.md",
+      "template": "security.template.md",
+      "owner": "project-security",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/database-schema.md",
+      "template": "database-schema.template.md",
+      "owner": "project-database",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/api-contract.md",
+      "template": "api-contract.template.md",
+      "owner": "project-api",
+      "status": "NOT_STARTED"
+    },
+    {
+      "path": "docs/deployment.md",
+      "template": "deployment.template.md",
+      "owner": "project-devops",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "skippedDocuments": [
+    {
+      "path": "docs/design-system.md",
+      "reason": "condition false: web/mobile/adminPortal/desktop"
+    },
+    {
+      "path": "docs/offline-sync.md",
+      "reason": "condition false: offline"
+    }
+  ],
+  "inputs": {
+    "descriptionFile": "input/project-description.md",
+    "references": []
+  },
+  "currentPhase": "03-select-agents",
+  "status": "IN_PROGRESS",
+  "releaseReadiness": "NOT_EVALUATED",
+  "mcp": {
+    "playwright": "NOT_PROBED"
+  },
+  "factoryVersion": "1.0.0",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

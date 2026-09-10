@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-software-factory/schemas/state.schema.json",
+  "title": "Project State",
+  "description": "Runtime state at .project/state/state.json. Written only by the project-state agent. This is the resume mechanism.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "currentPhase", "phases", "updatedAt"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "runId": { "type": "string", "description": "Identifier for the current orchestrator run" },
+    "currentPhase": { "type": "string" },
+    "currentFeature": { "type": ["string", "null"], "description": "Feature id currently being worked, or null" },
+    "activeAgent": { "type": ["string", "null"] },
+    "lastCheckpointAt": { "type": "string", "format": "date-time" },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "READY_FOR_REVIEW", "COMPLETED", "FAILED", "NOT_APPLICABLE"]
+          },
+          "gate": { "type": ["string", "null"] },
+          "gateResult": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "WAIVED", "NOT_EVALUATED", "NOT_APPLICABLE"],
+            "default": "NOT_EVALUATED"
+          },
+          "startedAt": { "type": ["string", "null"], "format": "date-time" },
+          "completedAt": { "type": ["string", "null"], "format": "date-time" },
+          "attempts": { "type": "integer", "minimum": 0, "default": 0 },
+          "evidencePaths": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "description": "Latest evaluation per gate id.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["result", "evaluatedAt"],
+        "properties": {
+          "result": { "type": "string", "enum": ["PASS", "FAIL", "WAIVED", "NOT_EVALUATED", "NOT_APPLICABLE"] },
+          "evaluatedAt": { "type": "string", "format": "date-time" },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "result"],
+              "properties": {
+                "id": { "type": "string" },
+                "result": { "type": "string", "enum": ["PASS", "FAIL", "WAIVED", "NOT_APPLICABLE"] },
+                "evidence": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "waiver": {
+            "type": "object",
+            "required": ["reason", "owner"],
+            "properties": {
+              "reason": { "type": "string" },
+              "owner": { "type": "string", "enum": ["user", "orchestrator"] },
+              "grantedAtPhase": { "type": "string" },
+              "expiresAtPhase": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "completedPhases": { "type": "array", "items": { "type": "string" } },
+    "failedPhases": { "type": "array", "items": { "type": "string" } },
+    "blockers": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/blocker" }
+    },
+    "knownIssues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "summary", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] },
+          "summary": { "type": "string" },
+          "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "FIXED", "WONT_FIX", "DEFERRED"] },
+          "feature": { "type": "string" },
+          "evidence": { "type": "string" },
+          "regressionTest": { "type": "string" }
+        }
+      }
+    },
+    "testStatus": {
+      "type": "object",
+      "description": "Latest result per test layer. Keys are layer names.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "lastRunAt"],
+        "properties": {
+          "status": { "type": "string", "enum": ["PASS", "PARTIAL", "FAIL", "NOT_TESTED", "BLOCKED", "NOT_APPLICABLE"] },
+          "passed": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "skipped": { "type": "integer" },
+          "total": { "type": "integer" },
+          "lastRunAt": { "type": ["string", "null"], "format": "date-time" },
+          "evidence": { "type": "string" },
+          "reason": { "type": "string", "description": "Required when status is BLOCKED or NOT_TESTED" }
+        }
+      }
+    },
+    "fixLoop": {
+      "type": "object",
+      "properties": {
+        "maxAttemptsPerDefect": { "type": "integer", "default": 3 },
+        "maxCyclesPerPhase": { "type": "integer", "default": 5 },
+        "currentCycle": { "type": "integer", "default": 0 },
+        "openDefects": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidenceIndex": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "phase", "agent", "createdAt"],
+        "properties": {
+          "path": { "type": "string" },
+          "phase": { "type": "string" },
+          "agent": { "type": "string" },
+          "feature": { "type": "string" },
+          "result": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "decision", "decidedAt"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^ADR-[0-9]{3}$" },
+          "title": { "type": "string" },
+          "context": { "type": "string" },
+          "decision": { "type": "string" },
+          "alternatives": { "type": "array", "items": { "type": "string" } },
+          "consequences": { "type": "string" },
+          "confidence": { "type": "string", "enum": ["EXPLICIT", "DERIVED", "ASSUMED", "UNKNOWN"] },
+          "decidedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "definitions": {
+    "blocker": {
+      "type": "object",
+      "required": ["id", "summary", "phase", "raisedAt", "status"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^BLK-[0-9]{3}$" },
+        "summary": { "type": "string" },
+        "detail": { "type": "string" },
+        "phase": { "type": "string" },
+        "feature": { "type": "string" },
+        "agent": { "type": "string" },
+        "needs": {
+          "type": "string",
+          "enum": ["USER_INPUT", "CREDENTIALS", "AUTHORISATION", "EXTERNAL_DEPENDENCY", "TOOLING", "DECISION"]
+        },
+        "remedy": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "RESOLVED", "WORKED_AROUND"] },
+        "raisedAt": { "type": "string", "format": "date-time" },
+        "resolvedAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

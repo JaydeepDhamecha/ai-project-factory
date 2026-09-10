@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-software-factory/schemas/journal-event.schema.json",
+  "title": "Journal Event",
+  "description": "One line of .project/state/journal.ndjson. Append-only. The journal is the audit trail that makes honesty checkable: every PASS must have a matching execution event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ts", "event", "agent"],
+  "properties": {
+    "ts": { "type": "string", "format": "date-time" },
+    "event": {
+      "type": "string",
+      "enum": [
+        "run_started", "run_resumed", "run_paused", "run_finished",
+        "phase_started", "phase_completed", "phase_failed", "phase_blocked", "phase_skipped",
+        "agent_invoked", "agent_completed", "agent_failed",
+        "agent_generated", "agent_rejected",
+        "document_generated", "document_updated", "document_skipped",
+        "feature_started", "feature_step_started", "feature_step_completed", "feature_completed", "feature_deferred",
+        "gate_evaluated",
+        "command_executed",
+        "test_executed", "test_skipped", "test_blocked",
+        "mcp_probed",
+        "defect_reported", "defect_reproduced", "defect_root_caused", "defect_fixed", "defect_retested", "defect_closed",
+        "blocker_raised", "blocker_resolved",
+        "decision_recorded", "assumption_recorded",
+        "evidence_written",
+        "checkpoint", "state_repaired",
+        "protocol_violation",
+        "user_escalation", "user_response"
+      ]
+    },
+    "agent": { "type": "string" },
+    "phase": { "type": "string" },
+    "feature": { "type": "string" },
+    "target": { "type": "string", "description": "Path, id or command the event concerns" },
+    "result": { "type": "string" },
+    "exitCode": { "type": "integer" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "detail": { "type": "string" },
+    "durationMs": { "type": "integer" }
+  }
+}

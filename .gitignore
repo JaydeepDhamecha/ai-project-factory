@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------
+# AI Software Development Factory — .gitignore
+# ---------------------------------------------------------------
+
+# --- Secrets / environment ---------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+secrets.json
+credentials.json
+service-account*.json
+.npmrc
+.netrc
+
+# --- Local Claude Code state --------------------------------------
+.claude/settings.local.json
+.claude/local/
+.claude-tmp/
+.cc_tmp/
+
+# --- OS / editor ---------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# --- Dependencies / build artifacts (for generated projects) --------
+node_modules/
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+coverage/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+target/
+Pods/
+.gradle/
+*.apk
+*.ipa
+*.xcuserstate
+
+# --- Test / tool output ---------------------------------------------
+playwright-report/
+test-results/
+blob-report/
+.playwright-mcp/
+*.log
+logs/
+
+# --- Evidence: keep the structure and reports, ignore heavy binaries --
+# Screenshots, traces and videos are large and regenerable. Keep the
+# markdown reports and JSON results that prove what happened.
+evidence/**/*.zip
+evidence/**/*.webm
+evidence/**/*.mp4
+evidence/**/trace.zip
+evidence/**/videos/
+
+# --- Generated project runtime state --------------------------------
+# NOTE: .project/ is intentionally NOT ignored. The manifest and state
+# are the resume mechanism and MUST be committed with the project.
+.project/**/*.tmp
+.project/locks/
+
+# --- Large user-supplied reference material --------------------------
+# input/references/ IS committed by default so the factory can re-read
+# the sources of truth. Uncomment the next line if your references
+# contain confidential material that must not reach GitHub.
+# input/references/

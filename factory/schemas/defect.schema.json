@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-software-factory/schemas/defect.schema.json",
+  "title": "Defect Record",
+  "description": "One defect through the bug-fix loop. Stored at evidence/qa/defects/BUG-NNN.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "severity", "summary", "state", "discoveredBy", "discoveredAt"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^BUG-[0-9]{3}$" },
+    "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"] },
+    "summary": { "type": "string" },
+    "feature": { "type": "string" },
+    "requirement": { "type": "string" },
+    "state": {
+      "type": "string",
+      "enum": ["REPORTED", "REPRODUCED", "NOT_REPRODUCIBLE", "ROOT_CAUSED", "FIX_IN_PROGRESS", "FIXED", "RETESTED", "REGRESSION_PASSED", "CLOSED", "WONT_FIX", "DEFERRED"],
+      "description": "Progression through the bug-fix loop. CLOSED requires RETESTED and REGRESSION_PASSED to have occurred."
+    },
+    "discoveredBy": { "type": "string" },
+    "discoveredAt": { "type": "string", "format": "date-time" },
+    "reproduction": {
+      "type": "object",
+      "properties": {
+        "steps": { "type": "array", "items": { "type": "string" } },
+        "reproducible": { "type": "boolean" },
+        "attempts": { "type": "integer" },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "rootCause": {
+      "type": "object",
+      "properties": {
+        "analysis": { "type": "string" },
+        "location": { "type": "string", "description": "file:line" },
+        "category": {
+          "type": "string",
+          "enum": ["logic", "validation", "state", "integration", "contract-mismatch", "configuration", "race", "ui", "data", "security", "performance", "environment"]
+        }
+      }
+    },
+    "fix": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "filesChanged": { "type": "array", "items": { "type": "string" } },
+        "attempt": { "type": "integer" },
+        "appliedAt": { "type": "string", "format": "date-time" },
+        "agent": { "type": "string" }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "regressionTest": { "type": "string", "description": "Test that fails before the fix and passes after" },
+        "failedBeforeFix": { "type": "boolean" },
+        "passedAfterFix": { "type": "boolean" },
+        "retestEvidence": { "type": "array", "items": { "type": "string" } },
+        "regressionEvidence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["at", "state", "note"],
+        "properties": {
+          "at": { "type": "string", "format": "date-time" },
+          "state": { "type": "string" },
+          "agent": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "closedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}
