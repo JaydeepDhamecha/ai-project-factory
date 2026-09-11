@@ -65,14 +65,19 @@ mkdir -p "$TARGET" || { err "Could not create '$TARGET'."; exit 1; }
 EXCLUDES="node_modules .venv venv __pycache__ .pytest_cache .mypy_cache \
 .ruff_cache dist build out .next .nuxt .svelte-kit coverage target Pods \
 .gradle playwright-report test-results blob-report .playwright-mcp .git \
-.DS_Store .env *.log *.pyc *.apk *.ipa"
+.DS_Store *.log *.pyc *.apk *.ipa \
+.env .env.* *.env *.env.* .envrc"
+
+# Every .env variant is excluded except the placeholder template, which must
+# travel with the project. A backup like .env.before-x.bak is still a secret.
+KEEP=".env.example"
 
 copy_path() {
   [ -e "$1" ] || return 0
   mkdir -p "$TARGET/$(dirname "$1")"
   if command -v rsync >/dev/null 2>&1; then
     # shellcheck disable=SC2086
-    rsync -a $(for e in $EXCLUDES; do printf -- '--exclude=%s ' "$e"; done) \
+    rsync -a --include="$KEEP" $(for e in $EXCLUDES; do printf -- '--exclude=%s ' "$e"; done) \
       "$1" "$TARGET/$(dirname "$1")/" || { err "copy failed: $1"; return 1; }
   else
     # shellcheck disable=SC2086
@@ -177,6 +182,22 @@ evidence/**/videos/
 PROJGI
   ok ".gitignore (project)"
 fi
+
+# ------------------------------------------------------- secret sweep
+
+# Belt and braces: the exclude list is a filter, not a guarantee. Anything
+# env-shaped that survived the copy is deleted and reported, because this tree
+# is about to become a git repository.
+SWEPT=0
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  case "$(basename "$f")" in .env.example) continue ;; esac
+  rm -f "$f" && SWEPT=$((SWEPT+1))
+  printf '  \033[33mREMOVED\033[0m %s (env file — never leaves the factory)\n' "${f#"$TARGET"/}"
+done <<SWEEP
+$(find "$TARGET" -type f \( -name '.env' -o -name '.env.*' -o -name '*.env' -o -name '*.env.*' \) 2>/dev/null)
+SWEEP
+[ "$SWEPT" -eq 0 ] && ok "secret sweep: no env files in the extracted tree"
 
 # --------------------------------------------------------------- git init
 
