@@ -65,23 +65,33 @@ mkdir -p "$TARGET" || { err "Could not create '$TARGET'."; exit 1; }
 EXCLUDES="node_modules .venv venv __pycache__ .pytest_cache .mypy_cache \
 .ruff_cache dist build out .next .nuxt .svelte-kit coverage target Pods \
 .gradle playwright-report test-results blob-report .playwright-mcp .git \
-.DS_Store *.log *.pyc *.apk *.ipa \
+.DS_Store *.pyc *.apk *.ipa \
 .env .env.* *.env *.env.* .envrc"
 
 # Every .env variant is excluded except the placeholder template, which must
 # travel with the project. A backup like .env.before-x.bak is still a secret.
 KEEP=".env.example"
 
+# Build logs are noise; logs under evidence/ are the evidence itself, and the
+# factory's honesty model rests on them. So *.log is excluded everywhere except
+# the evidence tree, which is copied with the log exclusion lifted.
+NOISE_LOGS="*.log"
+
 copy_path() {
   [ -e "$1" ] || return 0
   mkdir -p "$TARGET/$(dirname "$1")"
+  # evidence/ keeps its logs; everything else drops build noise.
+  case "$1" in
+    evidence|evidence/*) EX="$EXCLUDES" ;;
+    *)                   EX="$EXCLUDES $NOISE_LOGS" ;;
+  esac
   if command -v rsync >/dev/null 2>&1; then
     # shellcheck disable=SC2086
-    rsync -a --include="$KEEP" $(for e in $EXCLUDES; do printf -- '--exclude=%s ' "$e"; done) \
+    rsync -a --include="$KEEP" $(for e in $EX; do printf -- '--exclude=%s ' "$e"; done) \
       "$1" "$TARGET/$(dirname "$1")/" || { err "copy failed: $1"; return 1; }
   else
     # shellcheck disable=SC2086
-    ( tar -cf - $(for e in $EXCLUDES; do printf -- '--exclude=%s ' "$e"; done) "$1" \
+    ( tar -cf - $(for e in $EX; do printf -- '--exclude=%s ' "$e"; done) "$1" \
       | ( cd "$TARGET" && tar -xf - ) ) || { err "copy failed: $1"; return 1; }
   fi
   ok "$1 ($(du -sh "$TARGET/$1" 2>/dev/null | cut -f1 | tr -d ' '))"
