@@ -266,7 +266,22 @@ done
 
 section "14. Clone integrity"
 
-EMPTY=$(find . -path ./.git -prune -o -type d -empty -print 2>/dev/null | sed 's|^\./||')
+# This validates the FACTORY, not the product it generated. Generated project
+# output is git-ignored (CLAUDE.md Â§ 9), so exclude anything git ignores —
+# otherwise a run's node_modules and .venv are reported as factory errors.
+ALL_EMPTY=$(find . -path ./.git -prune -o -type d -empty -print 2>/dev/null | sed 's|^\./||')
+EMPTY=""
+if command -v git >/dev/null 2>&1 && [ -d .git ]; then
+  while IFS= read -r d; do
+    [ -z "$d" ] && continue
+    git check-ignore -q "$d" 2>/dev/null && continue
+    EMPTY="${EMPTY}${d}\n"
+  done <<< "$ALL_EMPTY"
+  EMPTY=$(printf '%b' "$EMPTY" | sed '/^$/d')
+else
+  EMPTY="$ALL_EMPTY"
+fi
+
 if [ -z "$EMPTY" ]; then
   ok "no empty directories — the layout survives a clone"
 else
@@ -277,7 +292,41 @@ fi
 
 # ------------------------------------------------------ 15. honesty checks
 
-section "15. Honesty invariants"
+section "15. Two-repository boundary"
+
+# The factory repo must never stage generated product output (CLAUDE.md Â§ 9).
+if command -v git >/dev/null 2>&1 && [ -d .git ]; then
+  BOUNDARY_OK=1
+  for gp in .project/project.json backend/x web/x mobile/x shared/x \
+            docs/PRD.md docs/requirements.md docs/architecture.md \
+            .claude/agents/project-web.md evidence/qa/report.md \
+            input/project-description.md input/references/spec.pdf; do
+    if ! git check-ignore -q "$gp" 2>/dev/null; then
+      err "generated path '$gp' is not ignored — it would be committed to the factory repo"
+      BOUNDARY_OK=0
+    fi
+  done
+  [ "$BOUNDARY_OK" -eq 1 ] && ok "generated project output is excluded from the factory repo"
+
+  for fp in .claude/agents/orchestrator.md .claude/commands/start-project.md \
+            factory/rules/git-policy.md docs/orchestration.md examples/README.md \
+            scripts/validate-factory.sh; do
+    if git check-ignore -q "$fp" 2>/dev/null; then
+      err "factory file '$fp' is ignored — it would be missing from a clone"
+    fi
+  done
+  ok "factory files are not ignored"
+
+  [ -x scripts/extract-project.sh ] \
+    && ok "scripts/extract-project.sh present and executable" \
+    || err "scripts/extract-project.sh missing or not executable"
+else
+  warn "not a git repository — skipping two-repository boundary checks"
+fi
+
+# ------------------------------------------------------ 16. honesty checks
+
+section "16. Honesty invariants"
 
 if grep -rn 'NOT_TESTED.*=.*PASS\|BLOCKED.*=.*PASS' --include='*.md' \
      .claude factory 2>/dev/null | grep -qv 'never'; then

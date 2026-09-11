@@ -48,7 +48,7 @@ when a command already exists.
 
 | Command | Purpose |
 |---|---|
-| `/start-project` | Primary entry point. Discover → understand → plan → generate → implement → test → release. |
+| `/start-project` | **The** entry point. Runs the entire lifecycle autonomously: discover → understand → plan → generate → implement → test → fix → regression → security → performance → release. It executes the pipeline; it never merely checks prerequisites or reports a plan. |
 | `/status` | Report current phase, feature, gates, blockers, test status. Read-only. |
 | `/resume` | Continue an interrupted run from persisted state. |
 | `/plan` | Regenerate or revise the development plan without implementing. |
@@ -116,7 +116,8 @@ docs/                Factory documentation (PROJECT MODE also writes product doc
 evidence/            Real artefacts produced by real work
 examples/            Worked example inputs and expected manifests
 input/               User-supplied description and references (read-only)
-.project/            Generated: manifest + state (PROJECT MODE only, committed)
+.project/            Generated: manifest + state (PROJECT MODE only, not committed
+                     to the factory repo — see § 9)
 scripts/             Bootstrap and validation helpers
 ```
 
@@ -131,3 +132,46 @@ scripts/             Bootstrap and validation helpers
 5. `factory/rules/quality-gates.md`.
 
 Do not begin work before step 3.
+
+---
+
+## 8. Delegation authorisation
+
+The factory pipeline is agent-driven. `/start-project`, `/resume`, `/plan`,
+`/test`, `/audit` and `/release` are **authorised and expected to use the Agent
+tool** to dispatch the factory and project agents. Any general guidance against
+delegation does not apply to these commands.
+
+The Agent tool's roster is fixed when a session starts, so `project-*` agents
+generated during `03-select-agents` cannot be dispatched in the session that
+created them. The orchestrator adopts those roles inline instead — same scope,
+outputs and evidence — and journals `inline_role_adoption`. This is never a
+reason to pause the run or ask the user to restart Claude Code.
+
+---
+
+## 9. Two repositories
+
+The factory and the products it builds are **separate repositories**.
+
+| | Factory repo | Generated project repo |
+|---|---|---|
+| Contains | `.claude/agents/{orchestrator,discovery,agent-generator,workflow-validator,project-state}.md`, `.claude/commands/`, `.claude/skills/`, `factory/`, `examples/`, `scripts/`, factory `docs/`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.gitignore` | `input/`, generated `docs/`, `.project/`, `evidence/`, `.claude/agents/project-*.md`, `backend/`, `web/`, `mobile/`, `shared/` |
+| Purpose | Reusable. Evolves independently of any product. | One product. |
+| Remote | `ai-project-factory` | `my-project`, `crm-project`, … |
+
+Everything in the right-hand column is ignored by the factory's `.gitignore`, so
+`git add .` inside a factory clone stages factory files only. A generated project
+is still fully present and resumable on disk — `.project/state/` is read from the
+filesystem, not from git.
+
+To take a finished project out of the factory and give it its own repository:
+
+```bash
+./scripts/extract-project.sh ../my-project
+```
+
+Never commit a generated product into the factory repo. If you are about to
+`git add` a path from the right-hand column, stop — it belongs to the project.
+
+---

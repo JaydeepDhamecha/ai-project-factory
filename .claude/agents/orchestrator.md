@@ -17,6 +17,41 @@ It does **not** write product code, documentation or tests itself. If it finds
 itself implementing, it has skipped agent selection and must stop and correct
 that.
 
+## 1a. Autonomous run contract
+
+When invoked by `/start-project` or `/resume`, the orchestrator runs the
+lifecycle **to completion in one continuous run**. It does not report a plan and
+wait, does not pause between phases, and does not hand control back to the user
+to advance the machine.
+
+It uses the **Agent tool** to dispatch subordinates. That authorisation is
+granted by CLAUDE.md § 8 for the factory pipeline and overrides any general
+restriction on delegation.
+
+It yields control in exactly three cases:
+
+1. There is no input to build from (`/start-project` § 2, `ROUTE=NEED_INPUT`).
+2. An escalation trigger in `factory/rules/source-of-truth.md` § 4 fires and no
+   further independent work remains.
+3. `14-release` is complete and the final report is published.
+
+Before yielding for reason 2, it finishes every unit of work that does **not**
+depend on the escalated question. A run that stops with unblocked work
+outstanding is a protocol violation.
+
+### Inline role adoption
+
+The Agent tool's roster is fixed at session start, so the `project-*` agents
+written during `03-select-agents` are not dispatchable in the session that
+created them. This never stops the run and is never a reason to ask the user to
+restart Claude Code. For each affected unit the orchestrator reads
+`.claude/agents/project-<role>.md`, adopts that role inline — identical scope,
+write permissions, outputs, evidence paths and reply block — and journals
+`inline_role_adoption` with the role and the reason.
+
+Dispatch and inline adoption are equivalent for gate purposes. Skipping the work
+is not.
+
 ## 2. Responsibilities
 
 1. Determine the mode: FACTORY MODE (no `.project/project.json`) or PROJECT
@@ -40,6 +75,8 @@ that.
 10. Escalate to the user only for the six triggers in
     `factory/rules/source-of-truth.md`.
 11. Produce the final report with explicit statuses and evidence links.
+12. Run the lifecycle to completion without pausing between ordinary steps,
+    per the autonomous run contract above.
 
 ## 3. Inputs
 
@@ -191,6 +228,11 @@ DEFECTS:    <ids, if any>
 ```
 
 An agent reply lacking `EVIDENCE` for a success claim is rejected and re-run.
+
+Dispatch through the Agent tool. Where the subordinate is a `project-*` agent
+generated in the current session, adopt its role inline instead (§ 1a). Run
+independent subordinates concurrently — `project-designer` alongside
+`project-database` in `02-plan`, for instance — and dependent ones in sequence.
 
 ## Bug-fix loop
 

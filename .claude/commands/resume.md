@@ -7,6 +7,17 @@ argument-hint: "[optional: phase or feature to resume at]"
 
 Continue where the factory left off. Optional target: **$ARGUMENTS**
 
+## Execution contract
+
+Like `/start-project`, this command **runs the lifecycle to completion**. It is
+not a status report. You are authorised and required to use the Agent tool
+(CLAUDE.md § 8); `project-*` agents generated in this session are adopted inline
+rather than dispatched. Do not end your turn between phases. Yield only on an
+escalation trigger from `factory/rules/source-of-truth.md` § 4, or at
+`14-release`.
+
+If you only want to see where things stand, that is `/status`.
+
 ## Preconditions
 
 ```bash

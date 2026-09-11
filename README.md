@@ -1,35 +1,55 @@
-# AI Software Development Factory
+# AI Project Factory
 
-A reusable **Claude Code project factory**.
-
-Give it a short project description and some reference material — PDFs,
-screenshots, wireframes, specification documents — run one command, and it
-takes the project from discovery through requirements, architecture,
-implementation, real browser testing, bug fixing, regression, security and
-performance review, to a production-readiness report.
-
-It is **generic by construction**. Nothing in this repository is tied to a
-particular product, client, domain or technology stack. The factory inspects
-your material, decides what kind of project it is, and generates only the
-agents, documents and tests that project actually needs.
+Turn requirements, PDFs and screenshots into a working application.
 
 ---
 
-## What this repository is
+## Usage
 
-This repository is the **factory**, not an application. Out of the box it
-contains no `backend/`, `web/` or `mobile/` directory — those are created only
-if and when a project you start needs them.
+```bash
+git clone https://github.com/YOUR-ORG/ai-project-factory.git
+cd ai-project-factory
+claude
+```
+
+Put your material here:
 
 ```
-.claude/     factory agents, slash commands, skills
-factory/     templates, JSON schemas, rules and gates
-docs/        how the factory works
-evidence/    real artefacts from real runs
-examples/    worked example inputs
-input/       where you put your description and references
-scripts/     bootstrap and validation helpers
+input/
+├── project-description.md      # optional
+└── references/
+    ├── requirements.pdf
+    ├── design.png
+    └── wireframe.pdf
 ```
+
+Then run one command:
+
+```
+/start-project
+```
+
+That is the entire user experience. You do not create agents, pick a stack,
+write a plan or wire up tests.
+
+**Input**
+
+- PDFs, screenshots, wireframes, specs
+- an optional short description
+
+**Output**
+
+- requirements, user stories, acceptance criteria
+- architecture and technology decisions
+- backend, web and mobile — whichever the project actually needs
+- tests at every applicable layer
+- real browser testing evidence from Playwright MCP
+- security and performance review
+- a production-readiness report with honest statuses
+
+References alone are enough. A description is optional, and the factory will
+never invent business rules to fill a gap — it records them as `UNKNOWN` and
+tells you.
 
 ---
 
@@ -40,73 +60,40 @@ scripts/     bootstrap and validation helpers
 | **Claude Code** | Runs the factory | Desktop, CLI, web or IDE extension |
 | **Node.js 18+** | Playwright MCP, most web toolchains | `node --version` |
 | **Git** | Version control for the generated project | `git --version` |
-| **Playwright MCP** | Real browser testing | Configured in `.mcp.json`, see below |
-| Python 3.10+ / JDK / Xcode / Android Studio | Only if your project needs them | The factory tells you if a prerequisite is missing |
+| **Playwright MCP** | Real browser testing | Registered in the bundled `.mcp.json` |
+| Python / JDK / Xcode / Android Studio | Only if your project needs them | The factory tells you what is missing |
 
-Playwright MCP is **optional but strongly recommended**. Without it the factory
-will still run, but every browser-level check is recorded as `BLOCKED` with the
+Playwright MCP is optional but strongly recommended. Without it the factory
+still runs, but every browser-level check is recorded as `BLOCKED` with the
 reason — it will never pretend a browser test happened.
 
----
-
-## Setup
+Optional sanity checks before you start:
 
 ```bash
-git clone <your-fork-url> my-project
-cd my-project
-
-# optional: verify prerequisites and factory integrity
 ./scripts/check-prerequisites.sh
 ./scripts/validate-factory.sh
 ```
 
-Then open the folder in Claude Code. The bundled `.mcp.json` registers the
-Playwright MCP server; approve it when Claude Code prompts.
-
-To confirm Playwright MCP is live, run `/test --probe` or ask Claude Code to
-list its MCP tools — you should see `browser_navigate`, `browser_click`,
-`browser_snapshot` and friends.
-
 ---
 
-## Starting a project
+## What this repository is
 
-### 1. Describe the project
-
-```bash
-cp factory/templates/project/project-description.template.md input/project-description.md
-```
-
-Edit it. A few honest paragraphs beat a long vague document. Say what the
-product is, who uses it, what the main things they do are, and any technology
-you require. Anything you do not know, leave out — the factory will ask or
-record an assumption rather than invent a business rule.
-
-### 2. Drop in your references
+This repository is the **factory**, not an application. Out of the box it
+contains no `backend/`, `web/` or `mobile/` directory — those are created only
+if a project you start needs them.
 
 ```
-input/references/
-  requirements.pdf
-  dashboard-mockup.png
-  mobile-flow.jpg
-  api-spec.pdf
+.claude/     factory agents, slash commands, skills
+factory/     templates, JSON schemas, rules and gates
+docs/        how the factory works
+examples/    worked example inputs
+input/       where you put your description and references
+scripts/     bootstrap, validation and extraction helpers
 ```
 
-Supported: `.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.md`, `.txt`,
-`.csv`, `.docx` (text extraction), `.json`, `.yaml`.
-
-These files are **read-only**. The factory never edits, renames or moves them.
-Everything it learns from them is written to `docs/source-analysis.md` with a
-citation back to the source file and page.
-
-### 3. Run one command
-
-```
-/start-project
-```
-
-That is the whole user experience. You do not create agents. You do not pick a
-stack unless you want to. You do not wire up tests.
+Nothing here is tied to a product, client, domain or stack. The factory inspects
+your material, decides what kind of project it is, and generates only the agents,
+documents and tests that project actually needs.
 
 ---
 
@@ -238,18 +225,44 @@ a feature already marked `COMPLETED` with passing evidence.
 
 ---
 
-## Git and GitHub
+## Two repositories
 
-- The factory itself is safe to fork and share: no secrets, no machine-specific
-  paths, no client data.
-- Generated projects get sensible commits at feature boundaries and gate
-  passes, with a conventional-commit message format.
-- **The factory never pushes to a remote, creates a repository, or opens a pull
-  request without your explicit instruction.**
-- `.env` is always ignored; `.env.example` is always generated.
-- Your `input/references/` are committed by default so future runs can re-read
-  the source of truth. If they are confidential, uncomment the last line of
-  `.gitignore`.
+The factory and the products it builds are **separate repositories**, so the
+factory can evolve without being mixed up with any one project.
+
+```
+GitHub
+├── ai-project-factory     this repository — reusable
+├── my-project             a generated project
+├── crm-project            another generated project
+└── ecommerce-project      another generated project
+```
+
+Generation happens in place inside your factory clone, but `.gitignore` excludes
+every generated path — `.project/`, `evidence/`, `input/references/`, generated
+`docs/`, `.claude/agents/project-*.md`, `backend/`, `web/`, `mobile/`. So
+`git add .` in a factory clone stages factory files only. Your project is still
+fully present and resumable on disk; `.project/state/` is read from the
+filesystem, not from git.
+
+When a project is ready to live on its own:
+
+```bash
+./scripts/extract-project.sh ../my-project
+cd ../my-project
+git remote add origin <your-project-remote>
+git push -u origin main
+```
+
+That copies — never moves — the manifest, state, inputs, evidence, generated
+documents, project agents and source trees into a new git repository, excluding
+dependency trees, build output, caches and `.env`.
+
+Two rules the factory will not break:
+
+- **It never pushes to a remote, creates a repository or opens a pull request
+  without your explicit instruction.**
+- `.env` is never committed; `.env.example` always is.
 
 Policy: `factory/rules/git-policy.md`.
 

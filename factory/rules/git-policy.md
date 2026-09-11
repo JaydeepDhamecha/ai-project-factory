@@ -53,24 +53,75 @@ working portion behind a clear boundary and record the state.
 
 ---
 
-## 4. What gets committed in a generated project
+## 4. Two repositories
+
+The factory and the products it builds live in **separate repositories**. A
+generated project is never committed into the factory repo.
+
+```
+GitHub
+├── ai-project-factory     the reusable factory — this repository
+├── my-project             a generated project
+├── crm-project            another generated project
+└── ecommerce-project      another generated project
+```
+
+### Inside a factory clone
+
+Generation happens in place, but the factory's `.gitignore` excludes every
+generated path, so `git add .` stages factory files only.
+
+| Ignored (belongs to the product) | Committed (belongs to the factory) |
+|---|---|
+| `.project/` | `.claude/agents/{orchestrator,discovery,agent-generator,workflow-validator,project-state}.md` |
+| `.claude/agents/project-*.md` | `.claude/commands/`, `.claude/skills/` |
+| `backend/`, `web/`, `mobile/`, `shared/` | `factory/` |
+| `evidence/**` (the `.gitkeep` skeleton stays) | factory `docs/`, `docs/reference/` |
+| generated `docs/*.md` | `examples/`, `scripts/` |
+| `input/project-description.md`, `input/references/*` | `AGENTS.md`, `CLAUDE.md`, `README.md`, `.gitignore` |
+
+The project is still fully present and resumable — `.project/state/` is read
+from the filesystem, never from git.
+
+If you are about to `git add` a path from the left column, stop. It belongs to
+the project.
+
+### Giving a project its own repository
+
+```bash
+./scripts/extract-project.sh ../my-project
+```
+
+This copies — never moves — the manifest, state, inputs, evidence, generated
+documents, project agents and platform source trees into a new directory,
+writes a project `.gitignore`, and makes one local commit. Dependency trees,
+build output, caches and `.env` are excluded. Pushing remains the user's call.
+
+---
+
+## 5. What gets committed in a generated project repository
 
 Committed:
 - source, tests, configuration, migrations
 - `docs/` — the generated documentation
 - `.project/project.json` and `.project/state/**` — **the resume mechanism**
 - `evidence/` markdown, JSON, logs and useful screenshots
+- `.claude/agents/project-*.md` — the project's own agents
 - `input/` — the sources of truth, so a future run can re-read them
 
 Not committed:
 - `.env`, credentials, keys
-- `node_modules/`, build output, caches
+- `node_modules/`, virtual environments, build output, caches
 - videos, traces, large binaries
 - `.claude/settings.local.json`
 
+If your `input/references/` are confidential, add them to the project's
+`.gitignore` before the first push — and accept that a later run cannot re-read
+them from a fresh clone.
+
 ---
 
-## 5. Factory repository hygiene
+## 6. Factory repository hygiene
 
 Because this repository is intended to be forked and shared:
 
@@ -78,6 +129,7 @@ Because this repository is intended to be forked and shared:
 - no absolute paths from the author's machine,
 - no OS-specific assumptions beyond POSIX shell in `scripts/`,
 - scripts degrade gracefully when an optional tool is missing,
-- `.gitignore` covers the toolchains the factory can generate.
+- `.gitignore` covers the toolchains the factory can generate,
+- no generated product output is ever staged.
 
 `./scripts/validate-factory.sh` checks the first two mechanically.
