@@ -11,6 +11,7 @@ capability_condition: web OR adminPortal
 Stack: {{STACK_WEB}} · Root: `{{PATH_WEB}}` · Scope: {{AGENT_SCOPE}}
 Commands: dev `{{CMD_DEV}}` · build `{{CMD_BUILD}}` · test `{{CMD_TEST}}` · lint `{{CMD_LINT}}`
 App URL: {{APP_URL}} · Breakpoints: {{BREAKPOINTS}}
+Viewports and orientation: `factory/rules/responsive-rules.md` — **normative**
 
 ## 1. Purpose
 
@@ -31,7 +32,20 @@ happy path.
 5. Implement navigation, routing, deep links and browser refresh/back behaviour.
 6. Implement authentication UI and route protection — where `{{CAP_AUTH}}`;
    hide **and** guard role-restricted UI — where `{{CAP_AUTHZ}}`.
-7. Implement responsive behaviour at {{BREAKPOINTS}} — where `{{CAP_RESPONSIVE}}`.
+7. Implement responsive behaviour per `factory/rules/responsive-rules.md`, at
+   {{BREAKPOINTS}} and across the full viewport matrix, **in portrait and in
+   landscape** — where `{{CAP_RESPONSIVE}}`. Concretely, and non-negotiably:
+   mobile-first base styles; no horizontal page scroll at any supported width;
+   no fixed-width or `min-width` layout container wider than the narrowest
+   supported viewport; navigation that collapses to a working drawer/bottom bar
+   and actually opens, operates and closes; every data table with a declared
+   strategy (scroll container, column priority, or stacked cards); forms one
+   column below tablet; modals that fit and scroll internally with their
+   primary action always reachable, including in short landscape; touch targets
+   ≥ 44 × 44 px; fluid media; a `width=device-width` viewport meta with user
+   scaling left enabled; `dvh`/`svh` rather than `100vh` where browser chrome
+   would clip. A screen built at one width and never checked at another is
+   incomplete.
 8. Meet the accessibility baseline: labels, focus order, keyboard operation,
    contrast, visible focus.
 9. Write component and interaction tests.
@@ -60,6 +74,8 @@ Denied: backend code, the API contract, the design system, other clients
 - Implementation under `{{PATH_WEB}}/`
 - Component/interaction tests
 - `evidence/implementation/<feature>/0N-*.log`
+- `evidence/implementation/<feature>/responsive-check.md` — each viewport class
+  × orientation, what was observed — where `{{CAP_RESPONSIVE}}`
 - Notes for `project-playwright`: routes added, selectors, test users
 
 ## 7. Validation
@@ -76,9 +92,17 @@ real data, its loading state appears, its empty state appears with no data, its
 error state appears when the API fails, its forms validate, and it survives a
 refresh.
 
+Then resize the browser and confirm the same screen at **every viewport class
+in the matrix, portrait and landscape** — at minimum 360 × 740, 740 × 360,
+768 × 1024, 1024 × 768 and 1440 × 900. At each: no horizontal page scroll,
+navigation usable, no clipped or overlapping content, the primary action
+reachable, modals fitting. Record the result per viewport in
+`responsive-check.md`; "looks fine on my screen" is not a result.
+
 Checks: no mock data on a production path; no hard-coded API base URL; no
 secret in client code; no console error in normal operation; every acceptance
-criterion has implementing UI.
+criterion has implementing UI; no horizontal overflow at the narrowest
+supported width.
 
 ## 8. Completion criteria
 
@@ -94,7 +118,10 @@ written. Feeds GATE-IMPL and GATE-PW. DoD §5.
 | Design reference is ambiguous | Follow the design system; record the deviation for visual review. |
 | Build fails | Fix it before reporting anything. |
 | A state is hard to trigger | Force it (throttle, block the request, empty the fixture) and verify it. Do not skip it. |
+| A layout cannot be made to work at a supported viewport | Raise with `project-designer` for a layout decision. Do not drop the viewport from the matrix, and do not ship a horizontal scrollbar as the answer. |
+| A third-party component is not responsive | Wrap, constrain or replace it. An unresponsive dependency is still your defect. |
 
 Never: mark a screen complete with only the happy path, rely on client-side
-authorisation alone, hard-code data the API should supply, or leave a console
-error unexplained.
+authorisation alone, hard-code data the API should supply, leave a console
+error unexplained, ship a fixed-width layout, disable user scaling, or claim a
+viewport works without having rendered the screen at it.

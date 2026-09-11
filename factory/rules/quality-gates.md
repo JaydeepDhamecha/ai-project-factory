@@ -49,6 +49,7 @@ Phase: `02-plan` / `04-generate-structure`
 | ARCH-4 | `docs/database-schema.md` exists: entities, keys, relationships, indexes, constraints, audit fields | CONDITIONAL (`database`) |
 | ARCH-5 | `docs/api-contract.md` exists: auth, endpoints, schemas, errors, pagination, status codes | CONDITIONAL (`api`) |
 | ARCH-6 | `docs/design-system.md` exists and is derived from supplied visual references where any exist | CONDITIONAL (`web` or `mobile`) |
+| ARCH-6a | `docs/design-system.md` states the layout at every viewport class in the matrix, in both orientations, and the narrow/short-landscape behaviour of navigation, tables and modals — `factory/rules/responsive-rules.md` §2, §3, §4 | CONDITIONAL (`responsive`) |
 | ARCH-7 | `docs/offline-sync.md` exists and classifies each feature | CONDITIONAL (`offline`) |
 | ARCH-8 | Authentication and authorisation model specified | CONDITIONAL (`auth`) |
 | ARCH-9 | Every requirement maps to at least one architectural element | MANDATORY |
@@ -71,6 +72,8 @@ Phase: `05-implement`
 | IMPL-7 | No `TODO`/`FIXME` introduced on a release-blocking path | MANDATORY |
 | IMPL-8 | Migrations exist, apply cleanly, and are reversible or explicitly one-way | CONDITIONAL (`database`) |
 | IMPL-9 | Loading, empty and error states implemented | CONDITIONAL (`web` or `mobile`) |
+| IMPL-9a | Responsive layout implemented per `factory/rules/responsive-rules.md` §3, and observed by the implementing agent at every viewport class × orientation, recorded in `responsive-check.md` | CONDITIONAL (`responsive`) |
+| IMPL-9b | Both orientations supported on every screen, or the lock is recorded with a reason in `docs/platform-requirements.md`; rotation preserves state — §4 | CONDITIONAL (`responsive`) |
 | IMPL-10 | Server-side validation present for every write path | CONDITIONAL (`backend`) |
 | IMPL-11 | Secrets read from environment; nothing hard-coded | MANDATORY |
 | IMPL-12 | `evidence/implementation/<feature>/` contains the command output | MANDATORY |
@@ -129,7 +132,12 @@ Applies only when `browserTesting` is true. Otherwise the whole gate is
 | PW-8 | Form validation exercised: valid, invalid, boundary, required | MANDATORY |
 | PW-9 | Loading, empty and error states observed | MANDATORY |
 | PW-10 | Navigation and deep-link/refresh behaviour verified | MANDATORY |
-| PW-11 | Responsive layouts checked at declared breakpoints | CONDITIONAL (`responsive`) |
+| PW-11 | Responsive layouts checked at every viewport class in the matrix — not only at the breakpoint boundaries | CONDITIONAL (`responsive`) |
+| PW-11a | Every primary screen exercised in **landscape** as well as portrait, at phone and tablet dimensions | CONDITIONAL (`responsive`) |
+| PW-11b | No horizontal page scroll at any supported width, measured not eyeballed | CONDITIONAL (`responsive`) |
+| PW-11c | Collapsed navigation opens, operates and closes below the navigation breakpoint | CONDITIONAL (`responsive`) |
+| PW-11d | Modal/dialog actions reachable in short landscape; focused form field and submit control visible with the keyboard open | CONDITIONAL (`responsive`) |
+| PW-11e | `evidence/playwright/responsive-matrix.md` complete: a cell per screen × viewport × orientation, each with an artefact; no cell inferred from another | CONDITIONAL (`responsive`) |
 | PW-12 | Screenshot captured for every scenario | MANDATORY |
 | PW-13 | `evidence/playwright/results.json` conforms to `factory/schemas/test-report.schema.json` | MANDATORY |
 | PW-14 | Zero `CRITICAL` or `HIGH` browser defects open | MANDATORY |

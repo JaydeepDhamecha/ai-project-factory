@@ -65,8 +65,51 @@ Baseline scenario families:
 | Forms | required fields; invalid formats; boundary values; server-side error surfaced; successful submit |
 | Lists | pagination, sorting, filtering, search, page-size, last page |
 | States | loading, empty, error (force a failure), success |
-| Responsive | each declared breakpoint: layout intact, nav usable, no overflow |
+| Responsive | every viewport class × orientation — see §4.1 |
 | Resilience | offline/failed request handling, double-submit, slow response |
+
+### 4.1 The responsive and orientation pass
+
+Rules: `factory/rules/responsive-rules.md`. Run this for every primary screen,
+not only the home page.
+
+Viewports (portrait, then landscape — resize with `browser_resize`):
+
+| Class | Portrait | Landscape |
+|---|---|---|
+| Small phone | 360 × 740 | 740 × 360 |
+| Large phone | 414 × 896 | 896 × 414 |
+| Tablet | 768 × 1024 | 1024 × 768 |
+| Laptop | 1280 × 800 | — |
+| Desktop | 1440 × 900 | — |
+
+At each viewport, assert — do not eyeball:
+
+1. **No horizontal page scroll.**
+   `browser_evaluate`: `() => document.documentElement.scrollWidth - window.innerWidth`
+   must be `<= 0`. If it is positive, find the offending element:
+   `() => [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > window.innerWidth + 1).slice(0,5).map(e => e.tagName + '.' + e.className)`
+   and put it in the defect.
+2. **Navigation.** Below the nav breakpoint: the collapsed control exists,
+   `browser_click` opens it, its links are reachable, it closes.
+3. **Primary action** of the screen is visible in the snapshot and clickable.
+4. **Nothing clipped or overlapped** — check the snapshot, not just the pixels.
+5. **A modal**: open one and confirm it fits, scrolls internally, and its
+   confirm/cancel actions are reachable. Short landscape is where this fails.
+6. **A form**: focus a field and confirm the field and the submit control are
+   both still visible.
+7. **State survives resize** for at least one scenario per feature: fill a
+   form, open a modal or scroll a list, *then* resize, and confirm nothing was
+   lost.
+
+Screenshot every cell: `evidence/playwright/responsive/<screen>-<class>-<orientation>.png`.
+Record the matrix in `evidence/playwright/responsive-matrix.md` — one cell per
+screen × viewport × orientation, each `PASS`/`FAIL`/`NOT_TESTED` with what was
+observed. A cell is never inferred from a neighbouring one: 768 px passing
+tells you nothing about 360 px, and portrait passing tells you nothing about
+landscape.
+
+Severities for what you find: `factory/rules/responsive-rules.md` §8.
 
 ## 5. Drive the real UI
 

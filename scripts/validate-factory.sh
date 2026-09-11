@@ -83,7 +83,7 @@ section "5. Rules"
 
 for r in quality-gates definition-of-done source-of-truth agent-selection-matrix \
          status-vocabulary git-policy evidence-rules naming-conventions \
-         agent-authoring-rules; do
+         agent-authoring-rules responsive-rules; do
   f="factory/rules/$r.md"
   [ -f "$f" ] && ok "rule $r" || err "rule $r is missing ($f)"
 done

@@ -19,13 +19,16 @@
 
 ### Viewports
 
-{{BREAKPOINTS}}
+{{BREAKPOINTS}} · Orientations: {{ORIENTATIONS}}
 
-| Name | Width | Tested |
-|---|---|---|
+Default matrix and rules: `factory/rules/responsive-rules.md` §2.
 
-A viewport listed here is tested by `project-playwright`. A viewport not
-listed is not claimed to work.
+| Name | Portrait (W × H) | Landscape (W × H) | Touch | Tested |
+|---|---|---|---|---|
+
+A viewport listed here is tested by `project-playwright` in **both**
+orientations it declares. A viewport not listed is not claimed to work; a
+listed viewport that was not exercised is `NOT_TESTED`, never `PASS`.
 
 <!-- OMIT IF: NOT mobile -->
 ## Mobile
@@ -34,9 +37,17 @@ listed is not claimed to work.
 |---|---|
 | Platforms | {{PLATFORMS_MOBILE}} |
 | Minimum OS versions | |
-| Device classes | |
-| Orientation support | |
+| Device classes | phone and tablet |
+| Orientation support | portrait + landscape on every screen, unless locked below |
 | Distribution | |
+
+### Orientation locks
+
+Empty means every screen supports both orientations. A row here is the only
+permitted way to ship a single-orientation screen.
+
+| Screen | Locked to | Reason | Enforced in |
+|---|---|---|---|
 
 ### Mobile verification
 

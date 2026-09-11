@@ -118,6 +118,8 @@ then `NOT_APPLICABLE`.
 | `{{CMD_INSTALL}}` `{{CMD_DEV}}` `{{CMD_BUILD}}` `{{CMD_TEST}}` `{{CMD_LINT}}` `{{CMD_TYPECHECK}}` `{{CMD_MIGRATE}}` | resolved project commands |
 | `{{APP_URL}}` | local dev URL |
 | `{{BREAKPOINTS}}` | responsive breakpoints |
+| `{{ORIENTATIONS}}` | supported orientations, from manifest `orientations`; default `portrait, landscape` |
+| `{{VIEWPORT_MATRIX}}` | the viewport classes actually tested — manifest `breakpoints` expanded to width × height per orientation, defaulting to the matrix in `factory/rules/responsive-rules.md` §2 |
 | `{{DOC_LIST}}` | the documents this project generates |
 | `{{AGENT_SCOPE}}` | write scope for a multi-instance agent |
 | `{{AGENT_VARIANT}}` | variant suffix for a multi-instance agent, e.g. `admin` |

@@ -26,21 +26,29 @@ It is the factory's check on itself. It fixes nothing.
    hand-written "evidence".
 4. Verify consistency: code vs contract, code vs schema, UI vs design system,
    web vs mobile behaviour, documents vs each other.
-5. Review code quality: placeholders and mocks on production paths, `TODO`s on
+5. Verify the responsive and orientation claims specifically — where
+   `{{CAP_RESPONSIVE}}`: `evidence/playwright/responsive-matrix.md` has a cell
+   per screen × viewport × orientation, each backed by an artefact that exists;
+   the design system states a layout at each breakpoint rather than only naming
+   numbers; landscape cells are not copies of portrait ones; no fixed-width
+   layout container or disabled user scaling survives in the source. See
+   `factory/rules/responsive-rules.md`.
+6. Review code quality: placeholders and mocks on production paths, `TODO`s on
    release-blocking paths, dead code, swallowed errors, duplicated logic,
    missing states.
-6. Re-check security findings independently rather than trusting the report.
-7. Verify operational readiness: `.env.example`, migrations, health checks,
+7. Re-check security findings independently rather than trusting the report.
+8. Verify operational readiness: `.env.example`, migrations, health checks,
    build reproducibility.
-8. Assess whether each gate result is actually justified by its evidence.
-9. Write the review report with findings ranked by severity.
+9. Assess whether each gate result is actually justified by its evidence.
+10. Write the review report with findings ranked by severity.
 
 ## 3. Inputs
 
 - The complete repository
 - `.project/project.json`, `.project/state/**` including `journal.ndjson`
 - All of `docs/**` and `evidence/**`
-- `factory/rules/quality-gates.md`, `factory/rules/definition-of-done.md`
+- `factory/rules/quality-gates.md`, `factory/rules/definition-of-done.md`,
+  `factory/rules/responsive-rules.md`
 
 ## 4. Required documents
 

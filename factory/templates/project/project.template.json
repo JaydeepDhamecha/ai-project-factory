@@ -30,6 +30,14 @@
     "deployable": true,
     "existingCodebase": false
   },
+  "breakpoints": [
+    { "name": "phone", "width": 360, "height": 740, "touch": true },
+    { "name": "large-phone", "width": 414, "height": 896, "touch": true },
+    { "name": "tablet", "width": 768, "height": 1024, "touch": true },
+    { "name": "laptop", "width": 1280, "height": 800 },
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "orientations": ["portrait", "landscape"],
   "stack": {},
   "commands": {},
   "paths": {},

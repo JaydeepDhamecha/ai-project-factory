@@ -57,7 +57,9 @@ agent. In outline:
 2. Enumerate routes from the running app.
 3. Derive scenarios from acceptance criteria.
 4. Drive the real UI: navigation, auth, CRUD, forms and validation, loading,
-   empty and error states, authorisation negatives, responsive breakpoints.
+   empty and error states, authorisation negatives, and the full responsive and
+   orientation pass — every viewport class in portrait **and** landscape, per
+   `.claude/skills/playwright-mcp/SKILL.md` §4.1.
 5. Screenshot every scenario.
 6. Collect console errors and failed network requests.
 7. Write `evidence/playwright/results.json` conforming to

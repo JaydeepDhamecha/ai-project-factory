@@ -32,7 +32,13 @@ QA does not fix product code. It finds, reproduces and hands over.
 8. File defects with reproduction steps; hand them to `bug-fixer`.
 9. Write structured results per `factory/schemas/test-report.schema.json`.
 10. Coordinate with `project-playwright` for the browser layer and
-    `project-mobile` for device layers — never substitute for them.
+    `project-mobile` for device layers — never substitute for them. The
+    responsive and orientation matrix belongs to those two agents; QA's job is
+    to confirm the matrix is complete and that no cell was inferred rather than
+    observed — `factory/rules/responsive-rules.md` §7.
+11. Include responsive and orientation coverage in `docs/testing-strategy.md`:
+    which viewport classes and orientations are tested, by which agent, and
+    which are explicitly out of scope — where `{{CAP_RESPONSIVE}}`.
 
 ## 3. Inputs
 

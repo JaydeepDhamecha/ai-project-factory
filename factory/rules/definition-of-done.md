@@ -51,7 +51,16 @@ against real artefacts — not against an agent's claim.
 - [ ] Error state implemented and observed.
 - [ ] Form validation: required, invalid, boundary.
 - [ ] Navigation, browser refresh and deep-link behaviour correct.
-- [ ] Responsive behaviour verified at declared breakpoints — if `responsive`.
+- [ ] Responsive behaviour verified at **every viewport class × orientation** in
+      the matrix of `factory/rules/responsive-rules.md` — if `responsive`.
+- [ ] No horizontal page scroll at the narrowest supported width.
+- [ ] Navigation collapses below the nav breakpoint, and the collapsed control
+      opens, operates and closes.
+- [ ] Tables, modals and forms behave per their declared narrow-viewport and
+      short-landscape strategy.
+- [ ] Landscape verified on phone and tablet widths, with a modal open and a
+      form focused.
+- [ ] Touch targets ≥ 44 × 44 px; user scaling not disabled.
 - [ ] Accessible: labels, focus order, keyboard operation of primary flows.
 - [ ] **Playwright MCP browser validation executed and `PASS`.**
 
@@ -64,6 +73,13 @@ against real artefacts — not against an agent's claim.
 - [ ] Permissions handled and denied-permission path tested.
 - [ ] Session persistence across app restart.
 - [ ] Network-failure behaviour.
+- [ ] Both orientations supported on every screen — or the lock recorded with a
+      reason in `docs/platform-requirements.md`.
+- [ ] Rotation preserves state: form input, scroll position, open modal, list
+      selection — verified mid-interaction, not on an empty screen.
+- [ ] Keyboard in landscape does not cover the focused field or the submit control.
+- [ ] Safe-area insets correct in landscape (left/right), not only at the top.
+- [ ] Tablet layout built and checked, not assumed from the phone layout.
 - [ ] Offline behaviour and synchronisation — if `offline`.
 - [ ] Simulator/emulator validation executed; real-device status stated honestly.
 

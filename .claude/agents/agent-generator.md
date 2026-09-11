@@ -18,21 +18,27 @@ produces documents nobody reads and gates nobody can pass.
 ## 2. Responsibilities
 
 1. Read the capability profile from the manifest.
-2. Evaluate derived flags (`api`, `browserTesting`, `integration`) rather than
-   trusting them if supplied.
-3. For each template in `factory/rules/agent-selection-matrix.md` §2, evaluate
+2. Evaluate derived flags (`api`, `browserTesting`, `responsive`,
+   `integration`) rather than trusting them if supplied.
+3. Ensure the manifest carries a viewport matrix before substituting: if
+   `breakpoints` or `orientations` is missing or empty, write the defaults from
+   `factory/rules/responsive-rules.md` §2 into the manifest rather than
+   resolving `{{BREAKPOINTS}}`/`{{ORIENTATIONS}}`/`{{VIEWPORT_MATRIX}}` to
+   `NOT_APPLICABLE`. A generated UI agent with no viewport matrix is the
+   direct cause of an unresponsive implementation.
+4. For each template in `factory/rules/agent-selection-matrix.md` §2, evaluate
    the condition and decide select or reject.
-4. Instantiate every selected template into `.claude/agents/project-<template>.md`,
+5. Instantiate every selected template into `.claude/agents/project-<template>.md`,
    substituting **every** `{{PLACEHOLDER}}`.
-5. Emit multiple instances with disambiguated ids where one template serves two
+6. Emit multiple instances with disambiguated ids where one template serves two
    surfaces (§4 of the matrix).
-6. Determine the applicable document set from the selection table in
+7. Determine the applicable document set from the selection table in
    `factory/templates/docs/README.md` — that table is the authority for
    documents exactly as the matrix is for agents — and instantiate the
    matching templates from `factory/templates/docs/` into `docs/`.
-7. Record selections **and rejections with reasons** in the manifest and in
+8. Record selections **and rejections with reasons** in the manifest and in
    `evidence/discovery/agent-selection.md`.
-8. Create the project directory structure implied by the platforms — and only
+9. Create the project directory structure implied by the platforms — and only
    that.
 9. Hand the roster to `workflow-validator` before reporting completion.
 
@@ -89,6 +95,9 @@ Run before reporting:
 5. `selectedAgents` ∪ `rejectedAgents` = the full template list. Nothing is
    silently unaccounted for.
 6. No agent was generated whose condition evaluated false.
+6a. Where `responsive` is true, the manifest has a non-empty `breakpoints` and
+   `orientations`, and no generated UI agent resolved a viewport placeholder to
+   `NOT_APPLICABLE`.
 7. Write scopes do not overlap in a way that lets two agents own one path.
 8. Every applicable document appears in `generatedDocuments`; every skipped one
    appears in `skippedDocuments` with a reason.

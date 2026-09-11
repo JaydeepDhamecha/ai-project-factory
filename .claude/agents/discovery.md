@@ -27,20 +27,28 @@ often what it marks as *unknown*.
    integrations, platform requirements.
 5. From images specifically: layout, spacing, typography, colour, components,
    tables, cards, navigation patterns, states, responsive hints.
-6. Detect an existing codebase and inventory its structure, stack, dependencies,
+6. Record the viewport and orientation expectations: which device classes the
+   material implies, whether any reference shows a narrow or landscape layout,
+   and any explicit statement about device support. Absence of a phone mock-up
+   is **not** evidence that phone support is out of scope — `responsive` is
+   derived from the platform flags (`factory/rules/agent-selection-matrix.md`
+   §1) and only an explicit, cited user statement may set it `false`. See
+   `factory/rules/responsive-rules.md` §1.
+7. Detect an existing codebase and inventory its structure, stack, dependencies,
    configuration, tests, CI, containers and current behaviour.
-7. Derive the **capability profile** — every flag in
+8. Derive the **capability profile** — every flag in
    `factory/rules/agent-selection-matrix.md` §1 — with a justification per flag.
-8. Classify the project type.
-9. Record every ambiguity, contradiction and gap.
-10. Note any unreadable reference file as a blocker with its reason.
+9. Classify the project type.
+10. Record every ambiguity, contradiction and gap.
+11. Note any unreadable reference file as a blocker with its reason.
 
 ## 3. Inputs
 
 - `input/project-description.md`
 - `input/references/**`
 - The repository tree, if it already contains product code
-- `factory/rules/source-of-truth.md`, `factory/rules/agent-selection-matrix.md`
+- `factory/rules/source-of-truth.md`, `factory/rules/agent-selection-matrix.md`,
+  `factory/rules/responsive-rules.md`
 
 ## 4. Required documents
 

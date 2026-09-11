@@ -77,7 +77,12 @@ The baseline families, per the skill:
 | States | loading, empty, error, success |
 | Authentication | login, logout, session expiry, protected redirect |
 | Authorisation | each role sees and reaches only what it should |
-| Responsive | each declared breakpoint |
+| Responsive | every viewport class × orientation — portrait **and** landscape, per `factory/rules/responsive-rules.md` §2 and the procedure in `.claude/skills/playwright-mcp/SKILL.md` §4.1 |
+
+The responsive family is the one most often reduced to a token check at one
+narrow width. It is not: every primary screen is exercised at every viewport
+class, in both orientations, with a modal open and a form focused. Landscape —
+especially phone landscape — is where layouts that "looked responsive" fail.
 
 The states family is the one most often skipped and the one that most often
 breaks in production. An empty list, a failed request and a slow response are

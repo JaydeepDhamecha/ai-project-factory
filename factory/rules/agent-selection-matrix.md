@@ -30,7 +30,7 @@ Produced by `discovery`, stored under `capabilities` in the manifest.
 | `payments` | Money movement |
 | `i18n` | Multiple languages/locales |
 | `multiTenant` | Data isolation between organisations |
-| `responsive` | Multiple viewport classes required |
+| `responsive` | Derived: `web` OR `adminPortal` OR `mobile` OR `desktop` — a UI is responsive unless the user explicitly and citably requires a single fixed viewport |
 | `browserTesting` | Derived: `web` OR `adminPortal` |
 | `deployable` | The project is expected to be deployed, not just built |
 | `existingCodebase` | The repository already contains product code |
@@ -40,8 +40,14 @@ Derived flags are computed, never asked for:
 ```
 api            = backend AND (web OR mobile OR desktop OR adminPortal OR apiOnly)
 browserTesting = web OR adminPortal
+responsive     = web OR adminPortal OR mobile OR desktop
 integration    = count(backend, web, mobile, desktop, adminPortal) >= 2
 ```
+
+`responsive` is derived rather than asked because "should it work on a phone?"
+is not a real question — a UI that only works at one width is broken, not
+minimal. Setting it `false` requires an explicit user statement cited in
+`docs/assumptions.md`. See `factory/rules/responsive-rules.md` §1.
 
 ---
 

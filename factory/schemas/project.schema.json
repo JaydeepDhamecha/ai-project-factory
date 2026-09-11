@@ -100,15 +100,24 @@
     "appUrl": { "type": "string", "description": "Local dev URL for browser testing, e.g. http://localhost:3000" },
     "breakpoints": {
       "type": "array",
+      "description": "Viewport classes. `width`/`height` are the portrait dimensions actually tested; landscape is the transpose unless `orientations` excludes it. See factory/rules/responsive-rules.md §2.",
       "items": {
         "type": "object",
         "required": ["name", "width"],
         "properties": {
           "name": { "type": "string" },
           "width": { "type": "integer" },
-          "height": { "type": "integer" }
+          "height": { "type": "integer" },
+          "touch": { "type": "boolean", "default": false }
         }
       }
+    },
+    "orientations": {
+      "type": "array",
+      "description": "Orientations supported and tested across every screen. Both unless the user explicitly requires otherwise; a per-screen lock is recorded in docs/platform-requirements.md, not here.",
+      "items": { "enum": ["portrait", "landscape"] },
+      "uniqueItems": true,
+      "default": ["portrait", "landscape"]
     },
     "selectedAgents": {
       "type": "array",

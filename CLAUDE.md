@@ -86,6 +86,11 @@ when a command already exists.
     inside the project, run the bug-fix loop rather than filing it and moving on.
 12. **Do not stop for confirmation between normal engineering steps.** Stop only
     for the escalation triggers in `factory/rules/source-of-truth.md`.
+13. **Every UI is responsive, in both orientations.** Web and native mobile
+    alike, across the declared viewport matrix — portrait *and* landscape. A
+    layout that breaks at a supported width or on rotation is a defect, not a
+    backlog item, and responsiveness is never claimed from a single viewport.
+    See `factory/rules/responsive-rules.md`.
 
 ---
 

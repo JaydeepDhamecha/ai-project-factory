@@ -42,12 +42,43 @@ the standard it meets. A pair that fails is a defect, not a style choice.
 Grid, container widths, and gutters.
 
 <!-- OMIT IF: NOT responsive -->
-### Breakpoints
+### Breakpoints and viewport behaviour
 
-{{BREAKPOINTS}}
+{{BREAKPOINTS}} · Orientations: {{ORIENTATIONS}}
 
-| Name | Min width | Layout change |
+Rules: `factory/rules/responsive-rules.md`. Each row states what the layout
+*becomes* — a breakpoint with no stated layout change is not a specification.
+
+| Name | Min width | Columns | Navigation | Tables | Modals | Layout change |
+|---|---|---|---|---|---|---|
+
+### Orientation
+
+Both orientations are supported on every screen unless a lock is recorded in
+`docs/platform-requirements.md` with a reason.
+
+| Class | Portrait layout | Landscape layout | What changes on rotation |
+|---|---|---|---|
+
+Phone landscape is designed, not inherited: state what unpins, what collapses,
+what becomes two columns, and what scrolls when vertical space is scarce.
+
+### Adaptive component behaviour
+
+| Component | Narrow viewport | Short landscape |
 |---|---|---|
+| Primary navigation | | |
+| Data table | | |
+| Modal / dialog | | |
+| Drawer / sheet | | |
+| Form | | |
+| Toolbar / action bar | | |
+
+| Touch rule | Value |
+|---|---|
+| Minimum touch target | 44 × 44 px |
+| Minimum separation | 8 px |
+| Safe-area insets | all four edges; left/right in landscape |
 
 ## Components
 
