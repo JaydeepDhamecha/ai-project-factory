@@ -92,6 +92,7 @@ logs/
 /api/
 /desktop/
 /admin/
+/integration/
 
 # --- Evidence produced by real runs ----------------------------------
 # The directory skeleton is kept; the artefacts are the project's.
