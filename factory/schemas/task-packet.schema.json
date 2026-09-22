@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-project-factory/schemas/task-packet.schema.json",
+  "title": "Task packet",
+  "description": "One feature slice, resolved. Written by `planner` at the end of 02-plan into .project/tasks/<featureId>.json, so that a per-feature agent in 05-10 can read one bounded file instead of re-reading the whole document set once per feature per platform. A packet is DERIVED, never authoritative: where it disagrees with the document it cites, the document wins (factory/rules/source-of-truth.md). See factory/rules/task-packets.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "featureId", "name", "generatedFrom",
+    "platforms", "requirements", "acceptanceCriteria", "notIncluded"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "featureId": {
+      "type": "string",
+      "description": "Matches an id in .project/state/features.json."
+    },
+    "name": { "type": "string" },
+    "summary": { "type": "string" },
+    "order": { "type": "integer", "minimum": 1 },
+    "dependsOn": { "type": "array", "items": { "type": "string" } },
+
+    "generatedFrom": {
+      "type": "object",
+      "description": "Provenance. A packet that cannot say which document version it was resolved from cannot be trusted after that document changes.",
+      "additionalProperties": false,
+      "required": ["documents", "generatedAt"],
+      "properties": {
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "documents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
+
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["backend", "web", "mobile", "adminPortal", "desktop"] }
+    },
+
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Resolved, not referenced. The id alone forces a full read of docs/requirements.md, which is the cost this packet exists to remove.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "citation"],
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "citation": {
+            "type": "string",
+            "description": "Where the requirement came from originally — a reference file and locator, per factory/rules/evidence-rules.md."
+          },
+          "confidence": { "enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN"] }
+        }
+      }
+    },
+
+    "acceptanceCriteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "requirementId": { "type": "string" }
+        }
+      }
+    },
+
+    "api": {
+      "type": "array",
+      "description": "Only the endpoints this slice touches. Absent when the project has no api capability.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["method", "path"],
+        "properties": {
+          "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          "path": { "type": "string" },
+          "request": { "type": "string" },
+          "response": { "type": "string" },
+          "errors": { "type": "array", "items": { "type": "string" } },
+          "authz": { "type": "string" }
+        }
+      }
+    },
+
+    "data": {
+      "type": "array",
+      "description": "Only the entities and fields this slice touches.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity"],
+        "properties": {
+          "entity": { "type": "string" },
+          "fields": { "type": "array", "items": { "type": "string" } },
+          "migration": { "type": "string" }
+        }
+      }
+    },
+
+    "design": {
+      "type": "array",
+      "description": "The screens this slice renders, and where their design came from.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["screen"],
+        "properties": {
+          "screen": { "type": "string" },
+          "reference": { "type": "string" },
+          "states": { "type": "array", "items": { "type": "string" } },
+          "viewports": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "notIncluded": {
+      "type": "array",
+      "description": "What this packet deliberately leaves out, so an agent knows when it must open the full document instead of assuming the packet is complete. A packet without this field is a summary pretending to be a specification.",
+      "items": { "type": "string" }
+    }
+  }
+}

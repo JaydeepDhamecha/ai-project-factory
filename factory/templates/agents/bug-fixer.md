@@ -35,6 +35,12 @@ failure. That concentration is deliberate — it keeps test agents honest.
 
 ## 3. Inputs
 
+- **`.project/tasks/<featureId>.json` — the task packet. Read this first.**
+  It carries this slice's requirements and acceptance criteria *resolved to
+  text*, with citations. Open a full document below only when the packet's
+  `notIncluded` says the answer is not there, or the packet is stale — and say
+  which, and why, in your handoff. `factory/rules/task-packets.md`.
+
 - `evidence/qa/defects/BUG-NNN.json`
 - The failing test output, screenshots, console and network logs
 - `docs/requirements.md`, `docs/acceptance-criteria.md` — what *should* happen

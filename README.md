@@ -20,6 +20,7 @@ could and could not verify.
 - [The lifecycle](#the-lifecycle)
 - [How agents are generated](#how-agents-are-generated)
 - [How documents are generated](#how-documents-are-generated)
+- [How the factory adapts to project size](#how-the-factory-adapts-to-project-size)
 - [Quality gates](#quality-gates)
 - [Status vocabulary](#status-vocabulary)
 - [How testing works](#how-testing-works)
@@ -411,6 +412,109 @@ documentation. The `.gitignore` knows which is which.
 
 ---
 
+## How the factory adapts to project size
+
+A login page and a multi-tenant ERP are not the same amount of work. Two
+mechanisms make the run fit the project, and both are automatic — you still type
+only `/start-project`.
+
+### 1. Capability-based selection
+
+`discovery` extracts a capability profile with cited counts, and
+`factory/rules/agent-selection-matrix.md` turns it into a roster. An agent whose
+condition is false is **never generated**, and the rejection is recorded in
+`evidence/discovery/agent-selection.md` so you can check the factory did not
+simply forget.
+
+A web-only project gets no database agent, no API contract and no integration
+phase. An API-only project gets no designer and no Playwright agent, and
+`GATE-PW` is recorded `NOT_APPLICABLE` — explicitly, never silently dropped.
+
+### 2. Scale
+
+`factory/rules/scale-rules.md` classifies the project `micro`, `small` or
+`standard` from six cited counts, and that decides **how many dispatches a phase
+takes**:
+
+| Scale | Passes | Typical project |
+|---|---|---|
+| `micro` | 7 | A sign-in flow. ≤2 entities, ≤3 screens, 1 role, 1 platform |
+| `small` | 10 | ≤8 entities, ≤12 screens, ≤3 roles, ≤2 platforms |
+| `standard` | 15 | Everything else, and anything touching payments, tenancy, offline or realtime |
+
+**All fifteen phases run at every scale, and every gate is always evaluated.**
+Merging changes how often agents are invoked, not what is checked. A phase is
+`NOT_APPLICABLE` only when a capability flag says the project has no such
+surface — never because a pass was merged.
+
+A project is `standard` unless every smaller condition is *affirmatively*
+satisfied by a cited count. Sizing down to make a run cheaper is explicitly
+forbidden: a mis-sized project hands phases to a pass that was not dimensioned
+for them, and the gate that gets lost is the last one in the pass.
+
+Two clients, one contract — a web and a mobile client rendering the same `/auth`
+endpoints, with no offline or realtime — may run at `small`. Two genuinely
+divergent clients may not.
+
+### Be honest about what this saves
+
+Measured on a completed reference run of 798 journal events:
+
+| Band | Share |
+|---|---|
+| Fix → retest → regression | **81%** |
+| Phases 00–04, which `micro` collapses into one pass | 3.3% |
+
+So collapsing phases is the **smaller lever, by a wide margin**. A project that
+finds twelve bugs costs twelve bug-fix loops at every scale. What actually drives
+a bill is how many defects your project has — which is mostly a function of how
+clearly you specified it.
+
+### Task packets — the lever that is on the hot band
+
+Phases 05–10 repeat per feature, per platform, and again per fix cycle. Each
+per-feature agent used to open five or six whole documents to implement one
+slice, because `features.json` gives it requirement **ids**, and an id can only
+be resolved by reading all of `docs/requirements.md`.
+
+`planner` now writes one **task packet** per feature —
+`.project/tasks/<featureId>.json` — resolving those ids to text once, at plan
+time, when the whole document set is already in context:
+
+```json
+{
+  "featureId": "FEAT-002",
+  "platforms": ["web", "mobile"],
+  "requirements": [
+    {"id": "REQ-014", "text": "Passwords must be at least 12 characters.",
+     "citation": "spec.pdf p.4", "confidence": "HIGH"}
+  ],
+  "acceptanceCriteria": [
+    {"id": "AC-031", "text": "An 11-character password is rejected inline."}
+  ],
+  "api": [{"method": "POST", "path": "/auth/register"}],
+  "notIncluded": ["Rate-limiting policy — see docs/security.md §3"],
+  "generatedFrom": {"documents": [{"path": "docs/requirements.md", "sha256": "…"}]}
+}
+```
+
+Four properties keep this honest, and `workflow-validator` enforces all of them:
+
+- **Derived, never authoritative.** Where a packet disagrees with the document
+  it cites, the document wins. Opening the full document is never wrong — it is
+  simply no longer the default.
+- **Text is copied, never paraphrased.** Summarising a requirement into a packet
+  is the failure this mechanism exists to prevent.
+- **`notIncluded` is mandatory.** The packet says what it leaves out, so an agent
+  knows when to go read the real document instead of assuming completeness.
+- **Provenance is hashed.** When a source document changes, packets resolved
+  from the old hash are stale and must be regenerated — a stale packet is a
+  defect, not a nuisance.
+
+Full rule: `factory/rules/task-packets.md`.
+
+---
+
 ## Quality gates
 
 Ten gates. A phase is not `COMPLETED` until its gate passes.
@@ -709,6 +813,8 @@ restating them.
 | `evidence-rules.md` | What counts as evidence, how it is named and indexed |
 | `naming-conventions.md` | File, feature, defect and artefact naming |
 | `git-policy.md` | Commits, branches, remotes, secrets, authorisation |
+| `scale-rules.md` | How project size is classified, and how many dispatches each size takes |
+| `task-packets.md` | The bounded reading contract on the per-feature loop |
 
 ### Non-negotiable rules
 
@@ -798,6 +904,6 @@ the factory.
 
 ## Licence
 
-No licence file is present in this repository yet. Until one is added, all
-rights are reserved and the terms of reuse are undefined — add a `LICENSE` file
-before inviting contributions or depending on this in other work.
+MIT — see [`LICENSE`](LICENSE). Fork it, use it commercially, build products
+with it. The projects it generates are yours and carry no licence from this
+repository.

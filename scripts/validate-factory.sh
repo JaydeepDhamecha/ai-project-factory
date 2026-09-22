@@ -354,6 +354,28 @@ if command -v git >/dev/null 2>&1 && [ -d .git ]; then
   done
   ok "new-project.sh installs a self-sufficient runtime"
 
+  # Task packets (factory/rules/task-packets.md): the reading contract on the
+  # per-feature loop, which is 81% of a real run's events.
+  [ -f factory/rules/task-packets.md ] \
+    && ok "factory/rules/task-packets.md present" \
+    || err "factory/rules/task-packets.md is missing"
+  [ -f factory/schemas/task-packet.schema.json ] \
+    && ok "factory/schemas/task-packet.schema.json present" \
+    || err "factory/schemas/task-packet.schema.json is missing"
+
+  grep -q 'task-packets.md' factory/templates/agents/planner.md 2>/dev/null \
+    && ok "planner emits task packets" \
+    || err "planner.md must write .project/tasks/<featureId>.json"
+
+  PKT_MISS=""
+  for a in backend web mobile integration qa playwright bug-fixer; do
+    grep -q '.project/tasks/' "factory/templates/agents/$a.md" 2>/dev/null \
+      || PKT_MISS="$PKT_MISS $a"
+  done
+  [ -z "$PKT_MISS" ] \
+    && ok "all 7 per-feature agents read the task packet first" \
+    || err "per-feature agents missing the packet contract:$PKT_MISS"
+
   [ -f factory/templates/project/CLAUDE.workspace.template.md ] \
     && ok "workspace CLAUDE.md template present" \
     || err "factory/templates/project/CLAUDE.workspace.template.md is missing"

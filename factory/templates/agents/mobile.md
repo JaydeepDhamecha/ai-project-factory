@@ -49,6 +49,12 @@ or emulator.
 
 ## 3. Inputs
 
+- **`.project/tasks/<featureId>.json` — the task packet. Read this first.**
+  It carries this slice's requirements and acceptance criteria *resolved to
+  text*, with citations. Open a full document below only when the packet's
+  `notIncluded` says the answer is not there, or the packet is stale — and say
+  which, and why, in your handoff. `factory/rules/task-packets.md`.
+
 - `docs/design-system.md`, `docs/api-contract.md`, `docs/platform-requirements.md`
 - `docs/offline-sync.md` — where `{{CAP_OFFLINE}}`
 - `docs/requirements.md`, `docs/acceptance-criteria.md`

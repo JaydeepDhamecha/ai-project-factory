@@ -30,7 +30,15 @@ fit together.
    lands on exactly one feature.
 7. Classify offline behaviour per feature, where `{{CAP_OFFLINE}}`.
 8. Write `docs/development-plan.md` and `.project/state/features.json`.
-9. Initialise `docs/development-status.md`.
+9. Write one **task packet** per feature into `.project/tasks/<featureId>.json`,
+   per `factory/rules/task-packets.md` and `factory/schemas/task-packet.schema.json`.
+   You have just read the whole document set to build the plan, so resolving the
+   packets costs one more pass over material already in hand — and it is what
+   stops phases 05–10 re-reading that set once per feature, per platform, per fix
+   cycle. **Copy requirement and acceptance-criterion text; never paraphrase it.**
+   Fill `notIncluded` honestly, and record the SHA-256 of every source document
+   in `generatedFrom`.
+10. Initialise `docs/development-status.md`.
 
 ## 3. Inputs
 
@@ -46,7 +54,7 @@ fit together.
 ## 5. Files it can modify
 
 Allowed: `docs/development-plan.md`, `docs/development-status.md`,
-`evidence/architecture/feature-ordering.md`; proposes
+`evidence/architecture/feature-ordering.md`, `.project/tasks/*.json`; proposes
 `.project/state/features.json` (written by `project-state`)
 
 Denied: requirements, architecture, source code
@@ -57,6 +65,7 @@ Denied: requirements, architecture, source code
 |---|---|
 | `docs/development-plan.md` | Feature table, per-feature detail, ordering rationale |
 | `.project/state/features.json` | Machine-readable plan per `features.schema.json` |
+| `.project/tasks/<featureId>.json` | One task packet per feature per `task-packet.schema.json` — resolved requirements, acceptance criteria, endpoints, entities and screens for that slice, with citations and `notIncluded` |
 | `docs/development-status.md` | Live status board |
 | `evidence/architecture/feature-ordering.md` | The dependency argument |
 

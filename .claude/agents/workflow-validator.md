@@ -19,8 +19,15 @@ structural and unambiguous, it repairs and journals the repair.
 
 1. **Factory integrity** — every rule, schema, template and command referenced
    anywhere actually exists.
-2. **Schema conformance** — manifest, state, features, test reports and defect
-   records validate against `factory/schemas/`.
+2. **Schema conformance** — manifest, state, features, task packets, test
+   reports and defect records validate against `factory/schemas/`.
+2a. **Task packet integrity** — whenever `.project/tasks/` exists, run the six
+   checks in `factory/rules/task-packets.md` §5: coverage, requirement-id set
+   equality against `features.json`, resolved (non-empty) text, citation
+   present, a non-empty `notIncluded`, and `generatedFrom` hashes matching the
+   documents on disk. A packet failing any of them is a `BLOCKED` input, not a
+   warning — an agent acting on a stale or lossy packet implements the wrong
+   requirement, and nothing downstream will catch it.
 3. **Agent contract** — every agent file has the nine sections in order,
    frontmatter with `name` matching the filename stem, a declared write scope
    and a gate reference.

@@ -60,7 +60,26 @@ citations. Every condition in a column must hold; any miss falls through.
 3. Any reference file is unreadable or only partly analysed. **You cannot size
    what you have not read.**
 4. Any of the six counts is unknown.
-5. `web` and `mobile` are both true — two divergent client surfaces.
+5. `web` and `mobile` are both true — **unless all four of the following hold**,
+   in which case `small` is permitted (never `micro`: two client surfaces are
+   not micro, whatever the screen count).
+
+   | | Condition | Why |
+   |---|---|---|
+   | a | Both clients consume the **same** API contract, with no client-only domain logic | Divergence is what makes two surfaces expensive. Two thin renderers of one contract are one design problem, not two. |
+   | b | `offline`, `realtime` and `backgroundJobs` are all false | Each turns a second client into a second consistency model. |
+   | c | Combined screens across both clients ≤ 12, and the `small` row is satisfied on every other signal | The normal `small` bar still has to be cleared. |
+   | d | The references **cover both clients** — a cited screen or spec for each | You cannot size a surface you have not seen. One client's screens do not describe the other's. |
+
+   Record all four verdicts with citations in `scale-assessment.md`. A missing
+   or uncited condition is a failed condition, and the demotion stands.
+
+   The rule used to be absolute, and it was too blunt: a two-screen sign-in flow
+   rendered by a web client and a mobile client against one `/auth` contract was
+   forced to `standard` — fifteen dispatches for a project whose entire surface
+   is a login form and a registration form. That is the case this exception
+   exists for. It is **not** a licence to merge a web app and a mobile app that
+   happen to share a backend; condition (a) is the load-bearing one.
 
 ### The default rule
 
