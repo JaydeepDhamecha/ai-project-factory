@@ -282,13 +282,20 @@ Their labels differ by role, because their meaning differs by role:
 | Admin and Employee see | Manager sees |
 |---|---|
 | Total Employees | Active Projects |
-| Active Projects | Team Members |
+| Active Projects | Team Size |
 | Open Tasks | Open Tasks |
 | Completed Tasks | My Completed Tasks |
 
-A Manager's **Team Members** counts the distinct members of the projects they own, not
-the organisation's headcount; **My Completed Tasks** counts tasks assigned to that
-manager, and opens the list filtered the same way.
+A Manager's **Team Size** counts the distinct members of the projects they own — **including
+the Manager** — not the organisation's headcount. So a Manager who leads two people sees
+**3**, and that number will be smaller than the Admin's Total Employees whenever anyone in the
+company is outside the Manager's projects. **My Completed Tasks** counts tasks assigned to
+that Manager, and opens the list filtered the same way.
+
+> This card was labelled **Team Members** until 17 September 2026. The number it shows did not
+> change; the wording did, because "Team Members" read as *your team, not counting you* and the
+> card had always counted you. On the **mobile app** the same figure appears under the simpler
+> label **Employees**.
 
 **My Urgent Tasks.** A short list of your most urgent open tasks, each with its priority
 and due date, with **View All** leading to `/tasks?mine=true`. Always shown to an
@@ -503,9 +510,36 @@ foot of the page shows the three priority badges.
 > itself rather than looking complete. If you see it, retry before trusting the numbers
 > or the export.
 
-**There is no date-range filter on the web Reports screen in this release.** Every
-figure is all-time. (The mobile app has a date-range control with a narrower effect —
-see [section 11](#11-the-mobile-app).)
+~~**There is no date-range filter on the web Reports screen in this release.** Every
+figure is all-time.~~ — **superseded 2026-09-17.** The filter **landed on 2026-09-16**,
+after this passage was written. The passage was true when written and stale by the time
+it shipped; it is struck through rather than deleted so the correction explains itself.
+
+**What is actually there.** The **Employee Performance** card carries a date-range
+filter: **From** and **To** date fields, an **Apply** button, and a **Clear** button once
+a window is set. Applying a window re-reads the employee report for that window. A
+**Period:** badge beside the fields shows the window *the server reports it applied* —
+"All time" when there is none. If the server ever applied a different window from the one
+you asked for, the card says so instead of presenting the figures under a filtered
+heading.
+
+**It covers one report, not the page.** Measured against a live API on 2026-09-17:
+applying a window re-requests the **employee** report and nothing else. **Tasks by
+Status**, **Tasks by Priority**, **Tasks by Project** and **Project Progress** are not
+re-read and stay **all-time** whatever the dates say. The **Period:** badge therefore
+describes the Employee Performance table only — read the other four panels as all-time.
+
+Two details worth knowing. The window changes each employee's *figures*, not *who is
+listed*: "Showing 28 of 28 employees" stays 28, with zeroes against anyone who had no
+activity in the window. And the window is not part of the page address, so a browser
+refresh returns the card to **All time**.
+
+(The mobile app also has a date-range control, and its coverage is **different** from the
+web's — do not read across from one client to the other. ~~Section 11's description of it
+is **under review as of 2026-09-17** — it was not re-measured by this correction.~~
+**Resolved 2026-09-17:** section 11 has now been re-measured and corrected. Mobile applies
+its window to **all three** of its reports, which is *broader* than web's one-in-five. See
+[section 11](#11-the-mobile-app).)
 
 ---
 
@@ -566,12 +600,23 @@ your stored session is cleared from this browser, so protected pages are guarded
 The mobile app is a **companion** to the web app, not a replacement. It is built with
 Expo (React Native) and runs on iOS and Android.
 
-> **Honest status.** The mobile app has **not been launched on a simulator, emulator or
+> **Honest status.** ~~The mobile app has **not been launched on a simulator, emulator or
 > physical device** on the verified development host — that machine has no iOS simulator
 > and no registered Android AVD (`docs/deployment.md`, deployment step 9). What follows
 > describes the screens and behaviour that are **built in the code**; nobody has yet
-> confirmed them running on a device. No mobile store build exists either: there is no
-> `eas.json`.
+> confirmed them running on a device.~~ — **superseded 2026-09-17.** That was true when it
+> was written and is now false for Android. The app **has** been run on an Android
+> emulator: AVD `WorkHub_Pixel4_API34`, Android 14, with 19 screenshots
+> (`evidence/retest/10-mobile-android-emulator-20260911T074508Z.log`;
+> `evidence/implementation/mobile/android-emulator-20260911T073507Z/`), plus a second
+> session at `evidence/qa/mobile/orchestrator-device-verification-20260914T0620Z/`. What
+> follows is therefore **observed running** on Android and **built in the code but never
+> executed** on iOS — `xcrun simctl` is absent on this host (BLK-001, re-verified
+> 2026-09-17;
+> `evidence/retest/mobile-ios-simulator-BLOCKED-blk-001-20260914T051500Z.txt`). **No
+> mobile store build exists**, on either platform: there is still no `eas.json` anywhere
+> in the repository, and `mobile/app.json` carries bundle identifiers but no build
+> profiles and no signing configuration.
 
 ### Running it
 
@@ -645,7 +690,7 @@ The share button hands the current report to your device's share sheet as CSV
 
 Two honest notes about mobile Reports, which the screen itself states:
 
-- **The date range only affects the Projects report.** For the Tasks and People reports the screen says *"The server returns all-time totals for this report — the date range is not applied to it yet."*
+- ~~**The date range only affects the Projects report.** For the Tasks and People reports the screen says *"The server returns all-time totals for this report — the date range is not applied to it yet."*~~ — **superseded 2026-09-17.** This was not merely stale, it was **inverted**: it credited the one report the server does *not* filter and denied the two it does. The quoted sentence no longer exists in the app — a repo-wide search for it now hits only this manual. **What actually happens:** the window is applied to **all three** reports (`mobile/app/reports.js:89` passes `rangeParams(range)` to every loader). **Tasks** and **People** are filtered **server-side** (`created_at` for tasks; `created_at`/`completed_at` for people). **Projects** is filtered **client-side**, by date overlap (`overlapsRange`, `mobile/src/utils/reportRange.js:31-36`), **because `/reports/projects` ignores date parameters altogether** — the client-side filter exists to compensate for the gap, not because projects is the only supported report. The on-screen note is now written per report by `rangeNoteFor` (`reportRange.js:81-90`) and says which dates each report is anchored on. Fixed as DEF-M-002 / DEF-032, with on-device proof (Tasks all-time 41 vs last-30-days 19) at `evidence/retest/10-mobile-android-emulator-20260911T074508Z.log:124-146`. Note that this makes mobile's date-range coverage **broader** than the web client's, which applies its window to the Employee Performance report only — see [Things that behave differently from the PRD](#things-that-behave-differently-from-the-prd).
 - **The export is a share, not a file download.** The CSV goes to the system share sheet rather than being saved into your Files app; saving a real `.csv` would need Expo modules that are not installed in this project.
 
 An Employee who reaches the Reports screen sees *"Reports are restricted"* / *"Reports
@@ -664,10 +709,10 @@ or **present but unverified**. Nothing here should be planned around as though i
 |---|---|---|
 | **Organisation-level settings** — *User Management*, *Organization*, *System Preferences* | There is **no organisation settings area**, for any role, including Admin. `/settings` is your own profile and password only, and says so: *"Organisation-wide settings are not part of this release."* Organisation-wide configuration, permission editing and audit logs do not exist. Deferred by an explicit product decision of 2026-09-10. | `evidence/qa/defects/DEF-008-settings-scope-and-access.md`; criterion AC-SET-1 |
 | **Server-side sign-out** | There is no sign-out endpoint. **Log out** clears tokens in your browser or device only; tokens already captured elsewhere remain valid for up to 24 hours (access) / 7 days (refresh). To actually end sessions, change your password. | SEC-F-002, `docs/security.md` |
-| **Notifications** | The bell in the web top bar just opens the Dashboard. There is no notification centre, no email notification for an assignment, and no mobile push. Any PRD workflow step that says "receive a notification" does not happen in this build. | Capability `notifications: false` in `.project/project.json` |
+| **Notifications** | The bell in the web top bar just opens the Dashboard. There is no notification centre, no email notification for an assignment, and no mobile push. Any PRD workflow step that says "receive a notification" does not happen in this build. **Note added 2026-09-17:** until that date the bell also displayed a permanent red unread dot and announced *"Notifications, 1 unread"* to screen readers, from a hard-coded value with no data behind it — so this row was accurate while the interface contradicted it. The fabricated badge was removed (defect D-1); the bell now carries no indicator and is announced simply as *Notifications*. | Capability `notifications: false` in `.project/project.json`; `evidence/qa/fix-cycle16/D-1-GREEN-web.md` |
 | **Team Activity report** | The Reports screen has Tasks by Status, Tasks by Priority, Project Progress, Employee Performance and Tasks by Project — and no Team Activity report. There is no such endpoint. The Dashboard's **Recent Activities** feed is an activity *feed*, not this report. | AC gap recorded against feature f06 |
 | **Kanban board view** | Tasks are lists and tables only. There is no board or drag-and-drop view anywhere in either client. | AC gap recorded against feature f04 |
-| **Date-range filtering on web reports** | The web Reports screen has a project-status filter and sortable columns, but **no date range**; all figures are all-time. The PRD's "filter by date range" step is not implemented on web. On mobile, the range chips affect only the Projects report, as that screen states. | `web/src/pages/Reports.jsx`; `mobile/app/reports.js` |
+| ~~**Date-range filtering on web reports**~~ — **superseded 2026-09-17; moved** | ~~The web Reports screen has a project-status filter and sortable columns, but **no date range**; all figures are all-time. The PRD's "filter by date range" step is not implemented on web.~~ **This limitation was retired on 2026-09-17.** The filter **landed on 2026-09-16**, after this row was written, so "not built at all" became false and the row no longer belongs in this table. It is **not** fully delivered either: what remains true is a *partial* coverage limitation, restated under [Things that behave differently from the PRD](#things-that-behave-differently-from-the-prd) below. Re-measured against a live API. | `evidence/qa/fix-cycle15/U-01-date-range-remeasurement.md` |
 | **Editing or deleting a comment** | Neither client offers a control to edit or delete a comment once posted, even your own. (The API has the capability; no screen uses it.) | AC gap recorded against feature f04 |
 | **File attachments** | Nothing can be attached to a project, task or comment. | Capability `fileUpload: false` |
 | **Offline use** | Both clients require a reachable API. There is no offline mode and no sync. | Capability `offline: false` |
@@ -678,7 +723,7 @@ or **present but unverified**. Nothing here should be planned around as though i
 These work in the interface; the project has no acceptance criterion covering them, so
 no one has signed off on their behaviour. Treat them as functional but unproven.
 
-- **Deleting a task** (the bin icon on the Tasks list, and its confirmation).
+- ~~**Deleting a task** (the bin icon on the Tasks list, and its confirmation).~~ — **superseded 2026-09-17; overstated.** Deletion is **partly** covered. The *denial* path has a criterion: **AC-RBAC-3** (`docs/acceptance-criteria.md:1476`) asserts "Employee cannot delete tasks (403)". What has no criterion is the **happy path** — an Admin or Manager successfully deleting a task, the confirmation dialog, and what the list does afterwards. So: the permission rule is signed off; the successful deletion is not.
 - **Deleting a comment** via the API, and the permission rule that should govern it.
 - **CSV export format.** Export is described in a criterion only in passing; neither the file format nor the download itself has a criterion of its own.
 - **Report empty and error states**, and the report generation-time target.
@@ -688,13 +733,19 @@ no one has signed off on their behaviour. Treat them as functional but unproven.
 
 - **Self-registration always creates an Employee.** There is no way to register as a Manager or an Admin; an Admin must change the role afterwards.
 - **Every signed-in user can browse the whole employee directory.** The PRD describes an Employee's view of users as "Limited"; in this build the directory is not narrowed by role — only its *editing* is.
+- **The web Reports date range covers one report out of five.** The date-range filter on the web Reports screen (added 2026-09-16) applies to the **Employee Performance** report **only**. **Tasks by Status**, **Tasks by Priority**, **Tasks by Project** and **Project Progress** are not re-read when a window is applied and remain **all-time**, so the PRD's "filter by date range" step is **partly** implemented on web rather than absent. Measured against a live API on 2026-09-17 — applying a window issued exactly one request, for the employee report. The API itself would honour a window on the task figures, but the web client does not send one; `/reports/projects` ignores date parameters altogether. The **mobile** client's coverage differs: ~~section 11's account of it is flagged as stale on 2026-09-17 and is awaiting its own re-measurement by the agent that owns `mobile/`.~~ **re-measured and corrected 2026-09-17** — mobile applies its window to **all three** of its reports, so on this point mobile is **ahead** of web, not behind it. See [section 11](#11-the-mobile-app). Recorded in `evidence/qa/fix-cycle15/U-01-date-range-remeasurement.md` and `evidence/qa/fix-cycle16/D-2-section11-mobile-date-range.md`.
 - **Settings is available to every role.** An earlier criterion said a Manager should be refused `/settings`. That criterion was judged defective — it would have locked Managers and Employees out of their own passwords — and was rewritten on 2026-09-10 so that only *organisation-level* settings are Admin-only. Personal settings are correctly open to all three roles.
 
 ### Operational cautions
 
-- **The demo password is committed to the repository** (`DEMO_PASSWORD` in `backend/apps/common/management/commands/seed_demo.py`). Seeded accounts are for local development only. Recorded as SEC-F-006 / SEC-F-010.
-- **Password-reset email needs real SMTP.** Until it is configured, reset links are printed to the server console and no user will receive one.
-- **The mobile app has never been run on a device or simulator here**, and there is no store build configuration. See [section 11](#11-the-mobile-app).
+- **The demo password is committed to the repository** — ~~(`DEMO_PASSWORD` in `backend/apps/common/management/commands/seed_demo.py`)~~ **citation superseded 2026-09-17.** The conclusion stands; the file named was wrong. `backend/` is **gitignored and untracked** (`.gitignore:88` is `/backend/`; `git ls-files backend` returns **0** files), so the `DEMO_PASSWORD = "WorkHub#2026"` at `seed_demo.py:107` is on disk but was never committed. The password **is** committed, at a different path: `integration/probe_secf019_task_project_move.py:34`, which **is** tracked. Tracked as **SEC-F-023** and escalated to the user. Seeded accounts remain local-development only. Previously recorded as SEC-F-006 / SEC-F-010.
+- **Password-reset email needs real SMTP** — ~~until it is configured, reset links are printed to the server console and no user will receive one.~~ **superseded 2026-09-17; the second half was inverted.** Reset links are **not** printed to the console, and that is a security control rather than a gap. `EMAIL_BACKEND` defaults to `django.core.mail.backends.smtp.EmailBackend` (`backend/config/settings.py:240-242`) **deliberately**: the reset token appears in the email and nowhere else, so the default backend is the *non-disclosing* one — *"A missing or empty configuration must fail to deliver, never fall back to disclosure — see SEC-F-001"* (`settings.py:236-238`). Console and file backends are **opt-in**, and choosing one with `DJANGO_DEBUG` off raises a `RuntimeWarning` naming the risk (`settings.py:266-274`). **So the real behaviour of an unconfigured install is: nothing is delivered and nothing is printed.** A reset that appears to do nothing means SMTP needs configuring — it does not mean the link is waiting in the server log.
+- ~~**The mobile app has never been run on a device or simulator here**, and there is no store build configuration.~~ — **superseded 2026-09-17.** One claim covering three different facts, and it is now false for one of them. Split:
+  - **Android — no longer a limitation.** The app has been run on an Android emulator (AVD `WorkHub_Pixel4_API34`, Android 14) with 19 screenshots captured: `evidence/retest/10-mobile-android-emulator-20260911T074508Z.log` and `evidence/implementation/mobile/android-emulator-20260911T073507Z/`, plus a second session at `evidence/qa/mobile/orchestrator-device-verification-20260914T0620Z/`.
+  - **iOS — still a real limitation, and it has not gone away.** The app has **never** been launched on an iOS simulator or device. `xcrun simctl` is absent on this host (only CommandLineTools is installed), so it cannot be. Tracked as **BLK-001**, re-verified 2026-09-17; evidence `evidence/retest/mobile-ios-simulator-BLOCKED-blk-001-20260914T051500Z.txt`. Its status is `BLOCKED`, not `PASS` — the Android run above does **not** stand in for it.
+  - **Store build configuration — still absent, on both platforms.** There is no `eas.json` anywhere in the repository. `mobile/app.json` declares bundle identifiers but no build profiles and no signing configuration, so neither an App Store nor a Play Store build can be produced from this tree.
+
+  See [section 11](#11-the-mobile-app).
 - **`manage.py runserver` is a development server** and must not be used to serve real users; see `docs/deployment.md`.
 
 ---

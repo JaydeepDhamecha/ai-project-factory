@@ -103,18 +103,45 @@ copy_path input
 copy_path evidence
 
 # Platform source trees, whichever the manifest produced.
-for d in backend web mobile shared api desktop admin; do copy_path "$d"; done
+for d in backend web mobile shared api desktop admin integration tests; do copy_path "$d"; done
 
 # Generated product documentation. Factory documentation stays in the factory.
+#
+# This EXCLUDES the factory's own documents and carries everything else. It used
+# to do the opposite -- copy only docs whose name matched a
+# factory/templates/docs/*.template.md template -- which silently dropped every
+# product document an agent created beyond the template set. That is not a
+# hypothetical: docs/user-manual.md (763 lines, the REQ-036 deliverable) had no
+# template and was lost by every extraction until 2026-09-18.
+#
+# The list below names FACTORY files only. Adding a product name here would
+# breach CLAUDE.md section 1. When a new factory document is added, add it here;
+# anything not named is treated as the project's and travels with it.
+FACTORY_DOCS="
+agent-system.md
+evidence-strategy.md
+factory-architecture.md
+factory-testing-strategy.md
+orchestration.md
+playwright-strategy.md
+project-generation.md
+project-state.md
+"
+
 mkdir -p "$TARGET/docs"
 DOC_COUNT=0
-for t in factory/templates/docs/*.template.md; do
-  [ -e "$t" ] || continue
-  d="docs/$(basename "$t" .template.md).md"
-  if [ -f "$d" ]; then cp "$d" "$TARGET/$d" && DOC_COUNT=$((DOC_COUNT+1)); fi
+DOC_SKIPPED=0
+for d in docs/*.md; do
+  [ -e "$d" ] || continue
+  base="$(basename "$d")"
+  if printf '%s\n' "$FACTORY_DOCS" | grep -qx "$base"; then
+    DOC_SKIPPED=$((DOC_SKIPPED+1))
+    continue
+  fi
+  cp "$d" "$TARGET/docs/" && DOC_COUNT=$((DOC_COUNT+1))
 done
-[ -f docs/capability-profile.md ] && cp docs/capability-profile.md "$TARGET/docs/" && DOC_COUNT=$((DOC_COUNT+1))
-ok "docs/ ($DOC_COUNT generated documents)"
+# docs/reference/ is factory material (agent prompts), never the project's.
+ok "docs/ ($DOC_COUNT product documents carried, $DOC_SKIPPED factory documents left behind)"
 
 # The project's own agents, plus the state custodian it needs to resume.
 mkdir -p "$TARGET/.claude/agents"

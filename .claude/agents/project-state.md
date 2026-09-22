@@ -64,6 +64,18 @@ Denied:
 - Validated state files
 - Journal events
 - Checkpoints under `.project/state/checkpoints/<phase>-<timestamp>.json`
+
+### Checkpoint procedure — order matters
+
+Choose the checkpoint timestamp `T` **first**, write `lastCheckpointAt = T` into
+`state.json`, and only **then** copy the files to `checkpoints/`. The snapshot
+then carries the correct value and is still byte-identical to live state.
+
+Do it in the other order and the field can never be right: a value written after
+the copy is absent from the snapshot, and one written before a `T` chosen later is
+wrong. That inversion left `lastCheckpointAt` stale across many checkpoints in a
+real run — the field read `2026-09-17T13:00:19Z` while checkpoints continued past
+it — and the drift was invisible because every individual write looked correct.
 - A resume briefing:
 
 ```
@@ -90,7 +102,13 @@ Before every write:
 2. The status transition is permitted by `status-vocabulary.md`.
 3. `COMPLETED` is accompanied by a gate result and an existing evidence path.
 4. No `PASS` is being written for a layer with no execution event.
-5. Timestamps are monotonic within a run.
+5. Timestamps are **non-decreasing** within a run — not strictly increasing.
+   Two events that are genuinely one operation (a decision and the checkpoint that
+   records it) legitimately share a second. Enforce this forward from a declared
+   line; never normalise historical lines to satisfy it. The journal is
+   append-only, and editing old entries to make a validator pass is precisely the
+   failure that rule exists to prevent — report a historical violation, do not
+   repair it.
 
 After every write: re-read and re-validate. A write that cannot be verified is
 rolled back to the last checkpoint.
