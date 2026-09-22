@@ -23,6 +23,12 @@
         "api-only", "admin-portal", "desktop", "library", "cli", "other"
       ]
     },
+    "scale": {
+      "type": "string",
+      "enum": ["micro", "small", "standard"],
+      "default": "standard",
+      "description": "How much there is to build, decided by `discovery` in 00-discover from cited counts. Governs how many agent dispatches a phase takes -- never whether a phase runs, and never whether a gate is evaluated. Absent reads as `standard`, which is the safe direction. Promotion micro->small->standard is legal mid-run; demotion is not. See factory/rules/scale-rules.md."
+    },
     "platforms": {
       "type": "array",
       "minItems": 1,

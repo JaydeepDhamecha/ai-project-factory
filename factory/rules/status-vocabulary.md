@@ -15,7 +15,7 @@ and report. Agents must not invent synonyms ("done", "ok", "working").
 | `READY_FOR_REVIEW` | Work complete, gate not yet evaluated. | `COMPLETED`, `FAILED`, `IN_PROGRESS` |
 | `COMPLETED` | Work complete **and** the quality gate passed **and** evidence exists. | `IN_PROGRESS` (reopened by regression) |
 | `FAILED` | Attempted and failed; gate failed or fix attempts exhausted. | `IN_PROGRESS`, `BLOCKED` |
-| `NOT_APPLICABLE` | Not required for this project's capability profile. | terminal |
+| `NOT_APPLICABLE` | Not required for this project's capability profile. Never assigned for reasons of scale, schedule or pass structure, and never for an empty loop. | terminal |
 
 `COMPLETED` is the only success terminal state, and it has three preconditions
 that are checked together, never separately:

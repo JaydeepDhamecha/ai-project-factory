@@ -203,6 +203,14 @@ DISCOVER → UNDERSTAND → PLAN → SELECT AGENTS → GENERATE STRUCTURE
 | 13 | `13-performance` | Measure against budgets | `GATE-PERF` |
 | 14 | `14-release` | Final evaluation and readiness report | `GATE-REL` |
 
+**All fifteen phases run on every project, and every gate is evaluated.** What
+varies with project size is how many *agent dispatches* those phases take: on a
+small project several adjacent phases share one invocation, which saves the
+repeated context re-reads between them. `discovery` decides the size from cited
+counts and defaults to the full pipeline whenever the inputs are thin. Nothing is
+skipped for being small — see `factory/rules/scale-rules.md`, which is also
+candid that this is the smaller of the two levers on cost.
+
 Features are built as **vertical slices**: each one goes backend → API → web →
 mobile → integration → browser test → QA → regression before the next feature
 starts. Not layer by layer.

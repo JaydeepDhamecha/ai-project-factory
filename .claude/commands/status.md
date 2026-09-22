@@ -30,11 +30,11 @@ PHASE        08-playwright        STATUS  IN_PROGRESS   ATTEMPT 2
 FEATURE      f02-employee-management  (step: playwright)
 AGENT        project-playwright
 
-PHASES
-  00-discover           COMPLETED   —
-  01-understand         COMPLETED   GATE-REQ   PASS
+PHASES                                              (scale: micro)
+  00-discover           COMPLETED   —                     P1-frame
+  01-understand         COMPLETED   GATE-REQ   PASS       P1-frame
   ...
-  08-playwright         IN_PROGRESS GATE-PW    FAIL
+  08-playwright         IN_PROGRESS GATE-PW    FAIL       P3-browser
 
 FEATURES        3 total — 1 COMPLETED, 1 IN_PROGRESS, 1 NOT_STARTED
   f01-authentication        COMPLETED  DoD PASS

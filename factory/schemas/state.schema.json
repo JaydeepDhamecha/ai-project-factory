@@ -35,7 +35,30 @@
           "completedAt": { "type": ["string", "null"], "format": "date-time" },
           "attempts": { "type": "integer", "minimum": 0, "default": 0 },
           "evidencePaths": { "type": "array", "items": { "type": "string" } },
-          "notes": { "type": "string" }
+          "notes": { "type": "string" },
+          "pass": {
+            "type": "string",
+            "description": "Id of the dispatch pass this phase ran inside. A pass groups phases for invocation only: the phase still carries its own status, gate and gateResult. Absent means the phase had a dispatch to itself."
+          }
+        }
+      }
+    },
+    "passes": {
+      "type": "array",
+      "description": "Dispatch groupings. Records which phases shared an agent invocation. Never a substitute for the per-phase records in `phases`.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "mode", "phases"],
+        "properties": {
+          "id": { "type": "string" },
+          "mode": { "type": "string", "enum": ["SINGLE", "MERGED"] },
+          "feature": { "type": ["string", "null"] },
+          "agent": { "type": "string" },
+          "phases": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "gatesEvaluated": { "type": "array", "items": { "type": "string" } },
+          "startedAt": { "type": ["string", "null"], "format": "date-time" },
+          "completedAt": { "type": ["string", "null"], "format": "date-time" }
         }
       }
     },
@@ -76,6 +99,49 @@
     },
     "completedPhases": { "type": "array", "items": { "type": "string" } },
     "failedPhases": { "type": "array", "items": { "type": "string" } },
+    "status": {
+      "type": "string",
+      "enum": ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "READY_FOR_REVIEW", "COMPLETED", "FAILED"],
+      "description": "Overall run status. Mirrors the manifest field of the same name."
+    },
+    "releaseReadiness": {
+      "type": "string",
+      "enum": ["NOT_EVALUATED", "NOT_READY", "READY_WITH_CAVEATS", "READY"],
+      "default": "NOT_EVALUATED"
+    },
+    "waivers": {
+      "type": "array",
+      "description": "Gate criteria waived, with the reason and owner that status-vocabulary.md requires. A waiver is never implicit.",
+      "items": {
+        "type": "object",
+        "required": ["gate", "criterion", "reason", "owner", "grantedAt"],
+        "properties": {
+          "gate": { "type": "string" },
+          "criterion": { "type": "string" },
+          "feature": { "type": "string" },
+          "reason": { "type": "string" },
+          "owner": { "type": "string" },
+          "expiryPhase": { "type": "string" },
+          "grantedAt": { "type": "string", "format": "date-time" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "journal": {
+      "type": "array",
+      "description": "Inline journal entries. The append-only journal of record is .project/state/journal.ndjson; this mirrors entries that must survive with the state snapshot.",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "agent"],
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "agent": { "type": "string" },
+          "action": { "type": "string" },
+          "summary": { "type": "string" },
+          "details": { "type": "object" }
+        }
+      }
+    },
     "blockers": {
       "type": "array",
       "items": { "$ref": "#/definitions/blocker" }

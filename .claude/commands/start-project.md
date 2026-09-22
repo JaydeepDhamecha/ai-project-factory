@@ -161,7 +161,13 @@ Write `.project/project.json` from
 `factory/templates/project/project.template.json`. Invoke `agent-generator` to
 instantiate only the agents and documents the profile requires, per
 `factory/rules/agent-selection-matrix.md`; record every rejection with its
-reason. Invoke `workflow-validator`. *No gate.*
+reason. Write the `scale` that `discovery` proposed into the manifest — absent
+reads as `standard`. Invoke `workflow-validator`. *No gate.*
+
+The phase headings in this file are **phases**, not dispatches. At `micro` or
+`small` several of them share one agent invocation, per
+`factory/rules/scale-rules.md` §3. Every phase still runs and every gate is
+still evaluated; only the number of invocations changes.
 
 ### 04 — GENERATE STRUCTURE
 `agent-generator` + `project-devops`. Create only the directories the manifest's

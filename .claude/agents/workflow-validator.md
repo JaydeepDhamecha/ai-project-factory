@@ -144,3 +144,7 @@ every check.
 | P-013 | Write scopes do not conflict | WARNING |
 | P-014 | No secret pattern in the tree | ERROR |
 | P-015 | Evidence directories have index files carrying counts, exit code and raw paths | ERROR |
+| P-016 | Every phase id `00-discover`…`14-release` appears exactly once in `state.phases` | ERROR |
+| P-017 | Every phase declaring a gate has a criterion-level result recorded for it | ERROR |
+| P-018 | Gate conservation: per pass, gates evaluated == phases in that pass declaring a gate; `phases[].pass` and `passes[].phases` agree | ERROR |
+| P-019 | No phase is `NOT_APPLICABLE` for a reason other than a named capability flag — never a pass, a scale or a schedule | ERROR |

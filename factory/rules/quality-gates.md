@@ -243,6 +243,19 @@ Phase: `14-release`
 | `13-performance` | GATE-PERF |
 | `14-release` | GATE-REL |
 
+This map holds at **every** scale. `factory/rules/scale-rules.md` lets small
+projects run several phases inside one agent dispatch, which changes how often
+an agent is invoked and nothing else: every phase above still runs, and every
+gate above is still evaluated, criterion by criterion, in phase order.
+
+A merged pass must satisfy gate conservation — the number of gates it evaluated
+equals the number of phases it covered that declare one. `GATE-PW` and
+`GATE-REL` are never merged with anything, and `GATE-SEC` leads its pass;
+between them they carry seven of the never-waivable criteria below, and a pass
+that compacts its context loses whatever is at the end.
+
+The list of never-waivable criteria is unchanged by scale.
+
 ---
 
 ## Waivers

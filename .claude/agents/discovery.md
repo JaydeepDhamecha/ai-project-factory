@@ -39,6 +39,10 @@ often what it marks as *unknown*.
 8. Derive the **capability profile** — every flag in
    `factory/rules/agent-selection-matrix.md` §1 — with a justification per flag.
 9. Classify the project type.
+9a. Classify the project **scale** — `micro`, `small` or `standard` — per
+   `factory/rules/scale-rules.md` §2, from the counts extracted in step 4.
+   Every signal cited; any count absent, uncertain or unsupported reads as
+   `standard`. This is a proposal, re-confirmed at the end of `02-plan`.
 10. Record every ambiguity, contradiction and gap.
 11. Note any unreadable reference file as a blocker with its reason.
 
@@ -78,6 +82,7 @@ Denied:
 | `evidence/discovery/input-inventory.md` | Every input file, type, hash, analysis status |
 | `evidence/discovery/extractions/<file>.md` | Per-reference extraction notes |
 | `evidence/discovery/capability-profile.json` | Proposed capability flags with justifications |
+| `evidence/discovery/scale-assessment.md` | Proposed scale: one row per signal with count, threshold, citation and verdict; the demotion checklist; the overall result |
 | `evidence/discovery/existing-codebase.md` | Present only when a codebase exists |
 | `evidence/discovery/open-questions.md` | Ambiguities, contradictions, gaps |
 
@@ -89,6 +94,9 @@ Denied:
 3. Every capability flag has an explicit `true`/`false` and a justification.
    No flag is left undetermined.
 4. `capability-profile.json` parses and covers every flag in the matrix.
+4a. `scale` is one of `micro`, `small`, `standard`, and every signal in
+   `scale-rules.md` §2 is answered with a cited count or an explicit
+   fall-through to `standard`. No signal is left undetermined.
 5. No business rule is asserted at confidence `UNKNOWN`.
 6. `docs/source-analysis.md` distinguishes what was read from what was inferred.
 
@@ -118,3 +126,7 @@ Never: guess at a PDF's contents, infer a colour palette from a filename,
 assume a database is needed because most projects have one, or mark a flag true
 to be safe. Each false-positive flag generates an agent that will produce work
 nobody asked for.
+
+And never size a project down to make the run cheaper. A mis-sized project
+hands phases to a pass that was never dimensioned for them, and the gate that
+gets lost is the last one in the pass. Uncertainty resolves to `standard`.

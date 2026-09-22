@@ -60,6 +60,24 @@ is not.
    doing anything else. Never restart a project from zero.
 3. Run the phase machine in order, skipping phases whose capability condition
    is false and recording them as `NOT_APPLICABLE`.
+3a. Read `scale` from the manifest and dispatch phases in the passes
+   `factory/rules/scale-rules.md` §3 defines for that scale. A pass groups
+   phases for **invocation only**. Within a pass you still:
+   - run every phase, in order;
+   - evaluate every gate that phase declares, **before the next phase in the
+     pass begins** — not all of them at the end;
+   - write a status, a gate result and evidence paths for **each** phase, with
+     `pass` naming the grouping;
+   - checkpoint at every phase boundary inside the pass, never only at the end
+     of it, so a crash still costs at most one phase.
+
+   Before marking a pass complete, check **gate conservation**: the number of
+   gates evaluated equals the number of phases in the pass that declare one. If
+   it does not, the pass failed — re-run the phases whose gates are missing.
+   Never close the gap by writing a verdict you did not evaluate.
+
+   An absent `scale` reads as `standard`, where every pass holds one phase and
+   behaviour is exactly as it was before passes existed.
 4. Invoke `discovery`, then `agent-generator`, then `workflow-validator`
    before any implementation begins.
 5. Invoke exactly the agents listed in `selectedAgents`, one owner per unit of
@@ -189,15 +207,22 @@ false `COMPLETED`.
 | `03-select-agents` | `agent-generator` | — | never |
 | `04-generate-structure` | `agent-generator`, `devops` | GATE-ARCH re-check | never |
 | `05-implement` | platform agents | GATE-IMPL | never |
-| `06-integrate` | `integration` | GATE-INTG | `integration` false |
+| `06-integrate` | `integration` | GATE-INTG | `integration` false → `NOT_APPLICABLE` |
 | `07-test` | `qa` | GATE-TEST | never |
 | `08-playwright` | `playwright` | GATE-PW | `browserTesting` false → `NOT_APPLICABLE` |
-| `09-fix` | `bug-fixer` | — | no defects |
-| `10-retest` | `qa`, `playwright` | GATE-TEST, GATE-PW | no fixes applied |
+| `09-fix` | `bug-fixer` | — | never — an empty loop is `COMPLETED`, not skipped |
+| `10-retest` | `qa`, `playwright` | GATE-TEST, GATE-PW | never — no fixes to retest is `COMPLETED`, not skipped |
 | `11-regression` | `regression` | GATE-REG | never |
 | `12-security` | `security` | GATE-SEC | never |
-| `13-performance` | `performance` | GATE-PERF | no runnable surface |
+| `13-performance` | `performance` | GATE-PERF | no runnable surface → `NOT_APPLICABLE` |
 | `14-release` | `release`, `reviewer` | GATE-REL | never |
+
+Only three rows above name a skip, and each names a **capability flag**. That
+registry is duplicated in `docs/orchestration.md` §4; the two must agree.
+
+`NOT_APPLICABLE` is never assigned for an empty loop, for reasons of scale, or
+because phases shared a dispatch. Merging changes how many times an agent is
+invoked — never a status, never a gate. See `factory/rules/scale-rules.md`.
 
 ## Invocation protocol
 

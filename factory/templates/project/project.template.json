@@ -4,6 +4,7 @@
   "slug": "unnamed-project",
   "description": "SEED MANIFEST. Copied to .project/project.json at the start of phase 00-discover, then filled in by `discovery`. Every value below is a neutral default, not a claim about the project: capabilities are all false, the agent roster is empty and no document is generated until discovery decides otherwise. Validate against factory/schemas/project.schema.json after each edit.",
   "projectType": "other",
+  "scale": "standard",
   "platforms": ["web"],
   "capabilities": {
     "web": false,

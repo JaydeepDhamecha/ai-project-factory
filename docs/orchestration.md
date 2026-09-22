@@ -82,11 +82,24 @@ reason, and its gate is likewise `NOT_APPLICABLE`. It is never left
 `NOT_STARTED`, and never silently omitted — the difference between "does not
 apply" and "we forgot" must be visible in the state file.
 
-| Phase | Skipped when |
+| Phase | `NOT_APPLICABLE` when |
 |---|---|
-| `08-playwright` | `browserTesting` false (no web surface) |
-| `06-integrate` | fewer than two surfaces |
-| `13-performance` | no runtime surface |
+| `06-integrate` | `integration` false |
+| `08-playwright` | `browserTesting` false |
+| `13-performance` | no runnable surface — `backend`, `web`, `mobile` and `desktop` all false |
+
+**These three rows are the whole registry.** A phase is `NOT_APPLICABLE` only
+because a capability flag says the project has no such surface. In particular:
+
+- **An empty loop is not a skip.** `09-fix` with no defects, and `10-retest`
+  with no fixes applied, are `COMPLETED` having done nothing — they ran, and
+  found nothing to do. Recording them `NOT_APPLICABLE` would blur the one
+  distinction this section exists to keep sharp.
+- **Scale is not a skip.** Merging phases into a shared dispatch never changes a
+  status. See `factory/rules/scale-rules.md` §1 and §3.
+
+This table and the one in `.claude/agents/orchestrator.md` §6 must agree. They
+are the same registry written twice.
 
 ## 5. Gate evaluation
 
