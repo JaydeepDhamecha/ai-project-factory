@@ -238,8 +238,23 @@ architecture, features, per-platform status, database, API, browser testing,
 mobile testing, security, performance, regression, known limitations, risks,
 deployment readiness, artefacts created, and the exact final status.
 
-Then tell the user how to take the project out of the factory:
+Then tell the user where the project is. **Which of the two you say depends on
+how the run was started** — check for the marker, do not assume:
+
+```bash
+test -f .project/workspace.json && echo WORKSPACE || echo IN_PLACE
+```
+
+`WORKSPACE` — created by `scripts/new-project.sh`. The project already *is* its
+own directory, with its own `/resume`, `/test` and `/audit`. **There is nothing
+to extract, and no such script here.** Say so, and note that `git init` in this
+directory is the user's call, never yours.
+
+`IN_PLACE` — the run happened inside the factory clone, so the product is mixed
+into the factory working tree and has to be lifted out:
 
 ```
 ./scripts/extract-project.sh ../<project-name>
 ```
+
+Mention that `scripts/new-project.sh` avoids that step next time.

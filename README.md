@@ -42,13 +42,26 @@ could and could not verify.
 ```bash
 git clone https://github.com/JaydeepDhamecha/ai-project-factory.git
 cd ai-project-factory
-claude
+./scripts/new-project.sh ../my-project
 ```
 
-Put your material here:
+That creates the project **next to** the factory, not inside it, with the whole
+runtime installed:
 
 ```
-input/
+Projects/
+├── ai-project-factory/     the factory — stays clean, reusable
+└── my-project/             your product — its own directory from turn one
+    ├── input/
+    ├── .claude/            agents, commands, skills
+    ├── factory/            rules, schemas, templates (snapshot)
+    └── CLAUDE.md
+```
+
+Put your material in the new directory:
+
+```
+my-project/input/
 ├── project-description.md      # optional
 └── references/
     ├── requirements.pdf
@@ -56,14 +69,22 @@ input/
     └── wireframe.pdf
 ```
 
-Then run one command:
+Then one command:
 
+```bash
+cd ../my-project && claude
+```
 ```
 /start-project
 ```
 
 That is the entire user experience. You do not create agents, pick a stack,
-write a plan or wire up tests.
+write a plan or wire up tests. Everything the run produces stays in
+`my-project/` — there is no extraction step and no cleanup in the factory.
+
+> Running `/start-project` inside the factory clone also works and builds the
+> product in place; `scripts/extract-project.sh` then separates them. Both
+> models are supported — see [Two repositories](#two-repositories).
 
 **Input**
 
@@ -106,7 +127,7 @@ Node.js:
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
+      "args": ["-y", "@playwright/mcp@0.0.82"],
       "env": {}
     }
   }
@@ -114,7 +135,9 @@ Node.js:
 ```
 
 Claude Code picks this up automatically when you start it in the repository
-root. Playwright MCP is optional but strongly recommended: without it the
+root. The version is **pinned deliberately**: a factory that claims reproducible
+evidence cannot float its browser driver on `@latest`. Bump it when you have
+re-run `/test` against the new version, not before. Playwright MCP is optional but strongly recommended: without it the
 factory still runs, but every browser-level check is recorded as `BLOCKED` with
 the reason, `GATE-PW` fails, and release readiness cannot reach `READY`. It
 will never pretend a browser test happened.
@@ -572,12 +595,34 @@ factory can evolve without being mixed up with any one project.
 | Purpose | Reusable. Evolves independently of any product. | One product. |
 | Remote | `ai-project-factory` | `my-project`, `crm-project`, … |
 
-Generation happens **in place** inside your factory clone, but `.gitignore`
-excludes every generated path. So `git add .` in a factory clone stages factory
-files only. Your project is still fully present and resumable on disk —
+There are two ways to get there.
+
+### Workspace — recommended
+
+```bash
+./scripts/new-project.sh ../my-project
+```
+
+Installs the runtime (5 factory agents, commands, skills, `factory/`,
+`AGENTS.md`, a pinned `.mcp.json`) into a new directory and marks it with
+`.project/workspace.json`. Total size: about 550 KB.
+
+The product is separate from the first turn. The factory clone is never written
+to. The project has its own `/start-project`, `/resume`, `/status`, `/test`,
+`/audit` and `/release`. **No extraction step exists.**
+
+The copied `factory/` is a deliberate snapshot: a project keeps the rules it was
+born with, so a run stays reproducible while the factory evolves. The corollary
+is that a *factory* fix made inside a workspace is lost — make those upstream.
+
+### In place — legacy, still supported
+
+`/start-project` inside a factory clone generates the product into that working
+tree. `.gitignore` excludes every generated path, so `git add .` stages factory
+files only, and the project is still fully present and resumable on disk —
 `.project/state/` is read from the filesystem, not from git.
 
-When a project is ready to live on its own:
+When such a project is ready to live on its own:
 
 ```bash
 ./scripts/extract-project.sh ../my-project
@@ -591,6 +636,13 @@ documents, project agents and source trees into a new git repository, excluding
 dependency trees, build output, caches and every `.env` variant (`.env.example`
 travels; a `.env.backup` does not). A belt-and-braces secret sweep runs over the
 extracted tree before `git init`.
+
+**Your source material is not published by default.** `input/references/` is
+copied to disk — so `/resume` and `/audit` can still read it — but excluded from
+the project's `.gitignore`. What gets committed instead is
+`.project/source-manifest.json`: the name, size and SHA-256 of each reference,
+enough to prove which sources the project was built from without distributing a
+client's PDF. Pass `--include-inputs` to commit the originals.
 
 > The extracted folder is a **hand-off artefact, not a second workspace.** It
 > deliberately contains no `factory/`, no `.claude/commands/` and no
@@ -635,7 +687,8 @@ scripts/           bootstrap, validation and extraction helpers
 |---|---|
 | `check-prerequisites.sh` | Report what is installed and what a run would need |
 | `validate-factory.sh` | 182-check structural self-check; must be 0 errors before a commit |
-| `extract-project.sh` | Copy a generated project into its own directory and git repository |
+| `new-project.sh` | Create a project workspace outside the factory with the runtime installed — the recommended way to start |
+| `extract-project.sh` | Lift an *in-place* project out of the factory into its own directory and git repository (`--include-inputs` to publish the source references too) |
 
 ---
 

@@ -66,6 +66,24 @@ GitHub
 └── ecommerce-project      another generated project
 ```
 
+### Two ways a project comes into being
+
+| | Workspace (recommended) | In place (legacy, still supported) |
+|---|---|---|
+| Started by | `./scripts/new-project.sh ../my-project` | `/start-project` inside the factory clone |
+| Product lives in | its own directory from the first turn | the factory working tree |
+| Factory clone | untouched — `git status` stays clean | holds the product until extraction |
+| Has `/resume`, `/test`, `/audit` | yes, installed at scaffold time | only while inside the factory clone |
+| Separation step | none | `./scripts/extract-project.sh` |
+| Marker | `.project/workspace.json` | none |
+
+**In a workspace there is no two-repository problem to manage.** The directory
+is the project repository; everything below about ignoring generated paths
+applies to the factory clone only. A workspace ships with its own `.gitignore`
+already written, and `git init` there is the user's call.
+
+The rest of this section describes the in-place model.
+
 ### Inside a factory clone
 
 Generation happens in place, but the factory's `.gitignore` excludes every
@@ -86,7 +104,9 @@ from the filesystem, never from git.
 If you are about to `git add` a path from the left column, stop. It belongs to
 the project.
 
-### Giving a project its own repository
+### Giving an in-place project its own repository
+
+Only needed for the in-place model. A workspace is already there.
 
 ```bash
 ./scripts/extract-project.sh ../my-project
@@ -105,19 +125,53 @@ Committed:
 - source, tests, configuration, migrations
 - `docs/` — the generated documentation
 - `.project/project.json` and `.project/state/**` — **the resume mechanism**
+- `.project/source-manifest.json` — name, size and SHA-256 of every reference
 - `evidence/` markdown, JSON, logs and useful screenshots
 - `.claude/agents/project-*.md` — the project's own agents
-- `input/` — the sources of truth, so a future run can re-read them
+- `input/project-description.md` — the brief, which the user wrote
 
 Not committed:
 - `.env`, credentials, keys
 - `node_modules/`, virtual environments, build output, caches
 - videos, traces, large binaries
 - `.claude/settings.local.json`
+- **`input/references/**` — the user's source material**
 
-If your `input/references/` are confidential, add them to the project's
-`.gitignore` before the first push — and accept that a later run cannot re-read
-them from a fresh clone.
+### Why references are excluded by default
+
+A reference is the one artefact in a generated project the factory did not
+write and cannot vouch for. It is a client's PDF, an internal screenshot, a
+customer's wireframe. The old default committed it and told the user to opt out
+before pushing — which fails in the direction that cannot be undone, because a
+push is public the moment it lands and deleting the file later does not unpublish
+it.
+
+So the default is inverted. The references stay **on disk**, so `/resume` and
+`/audit` can still re-read them; they are simply not published. What *is*
+committed is `.project/source-manifest.json`:
+
+```json
+{
+  "generatedAt": "2026-09-22T13:30:06Z",
+  "committed": false,
+  "algorithm": "sha256",
+  "references": [
+    {"name": "requirements.pdf", "bytes": 10155, "sha256": "c0b53b28…"}
+  ]
+}
+```
+
+That is enough for a reader to confirm the PDF in their hand is the PDF the
+project was built from, without the factory having distributed it.
+
+To publish the originals — your own material, an open brief, a public spec:
+
+```bash
+./scripts/extract-project.sh ../my-project --include-inputs
+```
+
+`committed` in the manifest records which way it went, so the choice is
+auditable rather than inferred from what happens to be in the tree.
 
 ---
 

@@ -39,12 +39,28 @@ Detect with:
 test -f .project/project.json && echo PROJECT_MODE || echo FACTORY_MODE
 ```
 
+A **project workspace** created by `scripts/new-project.sh` is a third case, and
+it is not this repository — it is a separate directory with its own `CLAUDE.md`
+that puts the session in PROJECT MODE unconditionally, marked by
+`.project/workspace.json`. You will never be in a workspace and in the factory
+at the same time. See § 9.
+
 ---
 
 ## 3. Entry points
 
 The user drives the factory with slash commands. Do not invent new workflows
 when a command already exists.
+
+Before the first command, decide **where the product is built** (§ 9):
+
+```bash
+./scripts/new-project.sh ../my-project   # recommended: product gets its own directory
+```
+
+Then `cd ../my-project` and run `/start-project` there. Running `/start-project`
+inside this clone still works and builds in place; it then needs
+`scripts/extract-project.sh` to separate the two.
 
 | Command | Purpose |
 |---|---|
@@ -165,12 +181,32 @@ The factory and the products it builds are **separate repositories**.
 | Purpose | Reusable. Evolves independently of any product. | One product. |
 | Remote | `ai-project-factory` | `my-project`, `crm-project`, … |
 
-Everything in the right-hand column is ignored by the factory's `.gitignore`, so
-`git add .` inside a factory clone stages factory files only. A generated project
-is still fully present and resumable on disk — `.project/state/` is read from the
-filesystem, not from git.
+There are two ways to keep them apart.
 
-To take a finished project out of the factory and give it its own repository:
+### Workspace — recommended
+
+```bash
+./scripts/new-project.sh ../my-project
+cd ../my-project && claude      # then /start-project
+```
+
+This installs the runtime — the five factory agents, `.claude/commands/`,
+`.claude/skills/`, `factory/`, `AGENTS.md`, `.mcp.json` — into a new directory
+and marks it with `.project/workspace.json`. The product is separate from the
+first turn, the factory clone is never written to, the project has `/resume`,
+`/test` and `/audit` of its own, and **there is no extraction step**.
+
+The copied `factory/` is a **snapshot**, deliberately: a project keeps the rules
+it was born with while the factory moves on. So a factory fix made inside a
+workspace is lost — factory changes belong in the factory repository.
+
+### In place — legacy, still supported
+
+`/start-project` inside a factory clone generates the product into this working
+tree. Everything in the right-hand column above is ignored by the factory's
+`.gitignore`, so `git add .` stages factory files only, and the project stays
+fully resumable on disk — `.project/state/` is read from the filesystem, not
+from git. Separating them afterwards:
 
 ```bash
 ./scripts/extract-project.sh ../my-project

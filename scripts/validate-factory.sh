@@ -38,9 +38,20 @@ for d in .claude/agents .claude/commands .claude/skills \
   [ -d "$d" ] && ok "dir $d" || err "dir $d is missing"
 done
 
-for f in CLAUDE.md AGENTS.md README.md .gitignore .mcp.json; do
+for f in CLAUDE.md AGENTS.md README.md LICENSE .gitignore .mcp.json; do
   [ -f "$f" ] && ok "file $f" || err "file $f is missing"
 done
+
+# A factory that promises reproducible browser evidence cannot float its
+# browser driver on a moving tag: @latest means two runs a month apart are not
+# the same experiment, and neither is re-running a failed scenario.
+if grep -q '@playwright/mcp@latest' .mcp.json 2>/dev/null; then
+  err ".mcp.json pins @playwright/mcp@latest — pin a tested version instead"
+elif grep -qE '@playwright/mcp@[0-9]+\.[0-9]+\.[0-9]+' .mcp.json 2>/dev/null; then
+  ok ".mcp.json pins an exact Playwright MCP version"
+else
+  warn ".mcp.json has no recognisable @playwright/mcp version pin"
+fi
 
 # ------------------------------------------------------- 2. factory agents
 
@@ -320,6 +331,44 @@ if command -v git >/dev/null 2>&1 && [ -d .git ]; then
   [ -x scripts/extract-project.sh ] \
     && ok "scripts/extract-project.sh present and executable" \
     || err "scripts/extract-project.sh missing or not executable"
+
+  # Privacy default (factory/rules/git-policy.md § 5): a user's references are
+  # the one artefact the factory did not write. Publishing them cannot be undone.
+  if grep -q 'include-inputs' scripts/extract-project.sh 2>/dev/null \
+     && grep -q 'input/references/\*' scripts/extract-project.sh 2>/dev/null; then
+    ok "extraction excludes input/references/ by default, with an opt-in"
+  else
+    err "extraction must exclude input/references/ by default (--include-inputs opts in)"
+  fi
+
+  [ -x scripts/new-project.sh ] \
+    && ok "scripts/new-project.sh present and executable" \
+    || err "scripts/new-project.sh missing or not executable"
+
+  # A workspace must be able to run the lifecycle on its own, or the model is a
+  # lie: the user would cd into a directory with no /start-project in it.
+  for need in ".claude/commands" ".claude/skills" "factory" "AGENTS.md" ".mcp.json" \
+              "workspace.json" "CLAUDE.workspace.template.md"; do
+    grep -q -- "$need" scripts/new-project.sh 2>/dev/null \
+      || err "new-project.sh does not install '$need' into the workspace"
+  done
+  ok "new-project.sh installs a self-sufficient runtime"
+
+  [ -f factory/templates/project/CLAUDE.workspace.template.md ] \
+    && ok "workspace CLAUDE.md template present" \
+    || err "factory/templates/project/CLAUDE.workspace.template.md is missing"
+
+  if grep -q 'workspace.json' .claude/commands/start-project.md 2>/dev/null; then
+    ok "/start-project distinguishes workspace from in-place hand-off"
+  else
+    err "/start-project must not tell a workspace user to run extract-project.sh"
+  fi
+
+  if grep -q 'source-manifest.json' scripts/extract-project.sh 2>/dev/null; then
+    ok "extraction writes .project/source-manifest.json"
+  else
+    err "extraction must write .project/source-manifest.json when references are withheld"
+  fi
 else
   warn "not a git repository — skipping two-repository boundary checks"
 fi
