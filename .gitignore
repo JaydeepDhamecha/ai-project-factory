@@ -109,28 +109,27 @@ evidence/*/*
 
 # --- Generated product documentation -----------------------------------
 # docs/ holds BOTH factory documentation (committed) and generated product
-# documentation (not committed). The generated names come from
-# factory/templates/docs/*.template.md, plus the discovery capability profile.
-/docs/PRD.md
-/docs/acceptance-criteria.md
-/docs/api-contract.md
-/docs/architecture.md
-/docs/assumptions.md
-/docs/capability-profile.md
-/docs/database-schema.md
-/docs/deployment.md
-/docs/design-system.md
-/docs/development-plan.md
-/docs/development-status.md
-/docs/offline-sync.md
-/docs/platform-requirements.md
-/docs/project-overview.md
-/docs/requirements.md
-/docs/security.md
-/docs/source-analysis.md
-/docs/technology-stack.md
-/docs/testing-strategy.md
-/docs/user-stories.md
+# documentation (not committed).
+#
+# This is an ALLOW-LIST: everything in docs/ is ignored and the factory's own
+# documents are named back in. It used to be a deny-list naming each product
+# document, which committed any product document whose name was not on it --
+# that is how docs/user-manual.md (a WorkHub deliverable) reached the public
+# factory repo. A new PRODUCT document is now ignored automatically; a new
+# FACTORY document must be added to the list below or it will not be committed.
+#
+# Keep this list in step with FACTORY_DOCS in scripts/extract-project.sh.
+# docs/reference/ is factory material (agent prompts) and is unaffected --
+# a single * does not cross a directory separator.
+/docs/*.md
+!/docs/agent-system.md
+!/docs/evidence-strategy.md
+!/docs/factory-architecture.md
+!/docs/factory-testing-strategy.md
+!/docs/orchestration.md
+!/docs/playwright-strategy.md
+!/docs/project-generation.md
+!/docs/project-state.md
 
 # --- Stray run artefacts at the repo root -------------------------------
 /*.png
