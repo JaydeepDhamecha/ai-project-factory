@@ -114,8 +114,7 @@ evidence/*/*
 # This is an ALLOW-LIST: everything in docs/ is ignored and the factory's own
 # documents are named back in. It used to be a deny-list naming each product
 # document, which committed any product document whose name was not on it --
-# that is how docs/user-manual.md (a WorkHub deliverable) reached the public
-# factory repo. A new PRODUCT document is now ignored automatically; a new
+# that is how a generated product manual once reached the public factory repo. A new PRODUCT document is now ignored automatically; a new
 # FACTORY document must be added to the list below or it will not be committed.
 #
 # Keep this list in step with FACTORY_DOCS in scripts/extract-project.sh.
