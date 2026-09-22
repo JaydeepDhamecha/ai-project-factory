@@ -14,6 +14,7 @@ could and could not verify.
 
 - [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
+- [What a run costs](#what-a-run-costs)
 - [What this repository is](#what-this-repository-is)
 - [Commands](#commands)
 - [The lifecycle](#the-lifecycle)
@@ -128,6 +129,100 @@ will never pretend a browser test happened.
 `validate-factory.sh` runs 182 checks across templates, schemas, rules, gate
 coverage, agent contracts, placeholders and honesty invariants. It should
 report **0 errors, 0 warnings** on a clean clone.
+
+---
+
+## What a run costs
+
+The factory is driven by a language model, so a run costs tokens. This section
+says what is measured, what is estimated, and what you can do about it. Nothing
+here is a quote — your cost depends on your project.
+
+### The repository itself is cheap
+
+Measured on a fresh clone:
+
+| | Tokens |
+|---|---|
+| `CLAUDE.md` | 2,059 |
+| `AGENTS.md` | 1,550 |
+| Agent roster (5 factory agents) | 311 |
+| **Loaded on every turn** | **~3,900** |
+| Every tracked file, if you read all of them | ~121,000 |
+
+The whole repo is 2 MB. Cloning it and opening Claude Code costs you almost
+nothing. **The repository is not where your tokens go.**
+
+### The run is where they go
+
+Measured on one completed reference project — a three-platform product with 28
+documents, 2,498 source files and 2,676 evidence artefacts:
+
+| What the run *wrote* | Tokens |
+|---|---|
+| Evidence | ~6,784,000 |
+| Documents | ~258,000 |
+
+Those are **output** tokens. Real spend is higher, because every agent reads
+context before it writes.
+
+**Read that number as a ceiling, not a forecast.** It is one large project, and
+it was produced *before* the evidence fix described below. A login page is not
+that project.
+
+### Where the waste was, and what changed
+
+Two findings from measuring that run:
+
+1. **Evidence was 96% of everything written, and almost none of it was read
+   back.** One artefact was 953,513 tokens — 73,748 lines, of which 2,472 were
+   unique. It was a single root cause repeated 603 times. Across the 40 largest
+   artefacts, **81.7% of lines were duplicates.**
+
+   Cause: the evidence recipe piped command output through `tee`, which writes
+   to the file *and* to the agent's context. Fixed. Logs are now written in
+   full to disk and read as a bounded slice; counts, exit codes and distinct
+   failures go into the directory index. Nothing is discarded — the raw file
+   stays on disk permanently and `/audit` still reads it.
+
+2. **The fix → retest → regression loop was 81% of all activity** (646 of 798
+   journal events). That loop is driven by how many defects your project has,
+   not by how big it is.
+
+### What this means for your project
+
+- **A small project is cheaper mainly because it has fewer defects**, not
+  because it has fewer phases. All fifteen phases always run.
+- **The single biggest cost driver you control is how clearly you specify the
+  project.** Vague input produces defects, and defects drive the loop that
+  dominates the bill.
+- `factory/rules/scale-rules.md` merges phases into fewer dispatches for small
+  projects. It is honest that this is the smaller lever.
+
+### Keeping a run cheap
+
+1. **Be specific in `input/`.** Every ambiguity becomes a `UNKNOWN`, a wrong
+   guess, or a defect. Screens, roles, rules and validations stated plainly are
+   the cheapest tokens you will ever spend.
+2. **Say what you do not need.** "No mobile app", "no database", "no offline"
+   each switch off a capability, and with it an agent, a document and a gate.
+3. **Keep references readable.** A blurry screenshot costs more than no
+   screenshot, because it gets analysed and then queried.
+4. **Use `/status` rather than re-asking.** It is a read-only snapshot and
+   costs a fraction of re-deriving the state.
+5. **Resume, never restart.** `/resume` reads the persisted state;
+   starting again re-runs work you have already paid for.
+6. **Let it finish a phase.** Interrupting mid-phase usually means the work is
+   redone.
+
+### What is not yet measured
+
+The evidence fix is verified **structurally** — schemas, rules and gates are
+consistent, and `validate-factory.sh` reports 182 checks, 0 errors. Its effect
+on a real run has **not** been measured yet, because that needs a full
+end-to-end run to compare against the figures above. When someone runs one, the
+comparison belongs here. Until then, treat the saving as a projection from the
+measured redundancy, not a result.
 
 ---
 
