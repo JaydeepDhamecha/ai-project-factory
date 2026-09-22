@@ -32,7 +32,10 @@ answer is no.
 ## 3. Inputs
 
 - `.project/project.json`, `.project/state/**`
-- `evidence/**` — all of it
+- `evidence/**/index.md` and `evidence/**/results.json` — the summaries, not
+  the raw logs. A `.raw.log` is opened only when an index and a claimed status
+  disagree; REL-11 requires evidence to **exist** for every claim, not to be
+  read whole.
 - `evidence/release/review-*.md`, `evidence/regression/final-regression-report.md`
 - `factory/rules/quality-gates.md`, `factory/rules/definition-of-done.md`
 

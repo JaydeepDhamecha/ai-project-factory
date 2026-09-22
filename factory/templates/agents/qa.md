@@ -62,7 +62,8 @@ Denied: product source code — every fix goes through `bug-fixer`
 | Path | Contents |
 |---|---|
 | `docs/testing-strategy.md` | Layers, coverage, exclusions |
-| `evidence/qa/<feature>/0N-*.log` | Raw runner output |
+| `evidence/qa/<feature>/0N-*.raw.log` | Raw runner output — written whole, never read whole |
+| `evidence/qa/<feature>/index.md` | Counts, exit codes and distinct failures; what downstream agents read |
 | `evidence/qa/<feature>/results.json` | Structured results |
 | `evidence/qa/coverage-matrix.md` | AC → test → result |
 | `evidence/qa/defects/BUG-NNN.json` | Defect records |

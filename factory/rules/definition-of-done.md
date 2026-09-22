@@ -129,7 +129,11 @@ against real artefacts — not against an agent's claim.
 - [ ] `evidence/playwright/<feature>/` — screenshots and results — if `browserTesting`.
 - [ ] `evidence/qa/<feature>/` — test output.
 - [ ] `evidence/api/<feature>/` — request/response transcripts — if `api`.
-- [ ] Every evidence file is real output, never composed by hand.
+- [ ] Every evidence **artefact** is real output, written by the command itself,
+      never composed by hand.
+- [ ] Every evidence **index or summary** is derived from an artefact that exists
+      on disk, cites that artefact's path, and reports only what the artefact
+      contains. Collapsing repetition is derivation; softening a result is not.
 
 ---
 

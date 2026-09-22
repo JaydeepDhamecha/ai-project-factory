@@ -143,4 +143,4 @@ every check.
 | P-012 | No disabled or deleted test correlated with a defect | ERROR |
 | P-013 | Write scopes do not conflict | WARNING |
 | P-014 | No secret pattern in the tree | ERROR |
-| P-015 | Evidence directories have index files | WARNING |
+| P-015 | Evidence directories have index files carrying counts, exit code and raw paths | ERROR |

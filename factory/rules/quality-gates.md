@@ -109,7 +109,7 @@ Phase: `07-test`
 | TEST-4 | Every acceptance criterion maps to ≥1 executed test, or is explicitly `NOT_TESTED` with a reason | MANDATORY |
 | TEST-5 | Coverage of release-blocking paths recorded | ADVISORY |
 | TEST-6 | No test was skipped, disabled or deleted to make the suite green | MANDATORY |
-| TEST-7 | Raw test output stored in `evidence/qa/` | MANDATORY |
+| TEST-7 | Raw test output stored in `evidence/qa/`, and summarised in that directory's `index.md` with counts, exit code and distinct failures | MANDATORY |
 
 ---
 

@@ -52,7 +52,8 @@ not be weakened
 
 | Path | Contents |
 |---|---|
-| `evidence/regression/run-<timestamp>/` | Raw output per layer |
+| `evidence/regression/run-<timestamp>/*.raw.log` | Raw output per layer — written whole, never read whole |
+| `evidence/regression/run-<timestamp>/index.md` | Per-layer counts, exit codes and distinct failures |
 | `evidence/regression/final-regression-report.md` | Full result with deltas |
 | `evidence/regression/delta.md` | What changed since the previous run |
 

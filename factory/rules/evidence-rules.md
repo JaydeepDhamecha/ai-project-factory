@@ -64,7 +64,14 @@ Example: `evidence/playwright/auth/01-login-valid.png`,
 `evidence/implementation/f01-auth/02-typecheck.log`.
 
 Every directory containing evidence carries a `README.md` or `index.md`
-listing what was run, when, by which agent, and the result.
+listing what was run, when, by which agent, and the result — and for each
+artefact its **exit code**, the **counts the runner reported**, the **distinct
+failures** where anything failed, and the artefact's **path**.
+
+This index is what downstream agents read. Raw artefacts are cited, not
+re-read; they are opened only to settle a discrepancy, by `/audit` or by
+`project-reviewer`. Every figure in an index is derived from an artefact that
+exists — see `.claude/skills/evidence-recording/SKILL.md` §4.
 
 ---
 
@@ -113,6 +120,11 @@ A missing evidence file with no such record is itself a validation failure.
   (visual comparison, failure states).
 - Videos, traces and archives are ignored by `.gitignore` — regenerable and
   large. If one matters, summarise it in markdown and reference it.
+- **The same applies to any large artefact, logs included.** A log is written in
+  full, kept in full, and read in slices. Its counts, exit code and distinct
+  failures go in the directory index; the log itself is cited by path and opened
+  only to settle a discrepancy. Summarising is not discarding — the artefact
+  stays exactly as the command wrote it.
 - Evidence is never deleted to make a report look cleaner. Superseded evidence
   is kept and marked superseded.
 
